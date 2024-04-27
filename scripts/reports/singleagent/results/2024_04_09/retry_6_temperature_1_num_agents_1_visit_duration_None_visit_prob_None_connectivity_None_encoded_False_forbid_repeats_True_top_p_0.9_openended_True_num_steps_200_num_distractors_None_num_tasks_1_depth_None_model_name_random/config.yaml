@@ -1,0 +1,17 @@
+connectivity: null
+depth: null
+encoded: false
+forbid_repeats: true
+model_name: random
+num_agents: 1
+num_distractors: null
+num_steps: 200
+num_tasks: 1
+openended: true
+results_dir: ''
+retry: 6
+temperature: 1
+top_p: 0.9
+trial: 0
+visit_duration: null
+visit_prob: null

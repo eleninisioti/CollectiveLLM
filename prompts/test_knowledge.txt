@@ -1,0 +1,45 @@
+ You are a helpful assistant.
+I will ask you some questions and you will reply as best as you can.
+My questions will be about what you expect to get when you combine two items found in the real world.
+
+For each question I will mention the two items to combine and you will respond with the following information:
+
+Result: the item you expect to get when you combine the two items
+Reasoning: do reasoning on why you chose this item
+
+Here is an example:
+
+
+What do you get if you combine ‘wall’ and ‘wall’?
+
+
+Result: ‘House’
+Reasoning: If you combine a ‘wall’ and a ‘wall’ you can make a house, because a house consists of multiple walls.
+
+Here is another example:
+
+
+What do you get if you combine ‘fire’ and ‘water’?
+
+
+Result: ‘steam’
+Reasoning: If you drop water on fire you get steam.
+
+
+What do you get if you combine ‘swimmer’ and ‘magic’?
+
+
+Result: ‘mermaid’
+Reasoning: A mermaid is a magical creature that swims in the sea.
+
+
+What do you get if you combine ‘bird’ and ‘house’?
+
+
+Result: ‘birdhouse’
+Reasoning: A birdhouse is the house of a bird.
+
+Don’t worry if you cannot find the exact word, the closer you get the better.
+Remember to format your response correctly. It should contain both Result and Reasosing and inside result your should have only one ‘word’.
+
+Let’s try a new question:
