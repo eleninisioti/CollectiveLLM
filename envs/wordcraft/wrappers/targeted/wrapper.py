@@ -4,7 +4,7 @@ from enum import IntEnum
 import numpy as np
 import gym
 from gym.utils import seeding
-from wordcraft.recipe_book import Recipe, RecipeBook
+from wordcraft_todelete.recipe_book import Recipe, RecipeBook
 
 
 NO_RECIPE_PENALTY = 0
@@ -15,7 +15,7 @@ SUBGOAL_REWARD = 1.0
 import random
 import string
 
-class WordcraftEnvForLLM(gym.Env):
+class WordcraftEnv(gym.Env):
 
     def __init__(self, wordcraft_env, encoded):
         self.wordcraft_env = wordcraft_env
@@ -137,7 +137,6 @@ class WordcraftEnvForLLM(gym.Env):
         return ''.join(random.choice(letters) for i in range(length))
 
     def index_to_word(self, index):
-        print(index)
         return self.wordcraft_env.env.env.table[index]
 
     def word_to_index(self, word):

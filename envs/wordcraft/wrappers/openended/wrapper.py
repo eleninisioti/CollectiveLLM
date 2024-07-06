@@ -15,7 +15,7 @@ SUBGOAL_REWARD = 1.0
 import random
 import string
 
-class WordcraftEnvForLLM(gym.Env):
+class WordcraftEnv(gym.Env):
 
     def __init__(self, wordcraft_env, encoded):
         self.wordcraft_env = wordcraft_env

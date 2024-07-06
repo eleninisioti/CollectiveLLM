@@ -131,7 +131,7 @@ def create_envs(env_args, seed):
         #os.chdir("wordcraft")
         #print(os.getcwd())
 
-        from wordcraft.env import WordCraftEnv
+        from wordcraft_todelete.env import WordCraftEnv
 
         env = gym.make(
                 'wordcraft-multistep-goal-v0',

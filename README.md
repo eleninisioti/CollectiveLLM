@@ -1,6 +1,8 @@
-# CollectiveLLM
+# Collective innovation with Large Language Models
 
-This is the code accompanying our submission to ALife 2024 "Collective innovation with Large Language Models."
+This is the code accompanying our paper "Collective innovation with Large Language Models", to be presented at the ALife 2024 conference.
+
+
 
 You can find the intro prompts for explaining the task to the LLM agents under the prompts directory.
 

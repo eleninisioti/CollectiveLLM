@@ -1,44 +1,32 @@
+""" This script the main interface to our code for running simulations.
+It can be run directly by calling "python play.py --args" or by calling the method "play" from another script
+"""
+
 import os, sys
 sys.path.append(os.getcwd())
-sys.path.append(os.getcwd()+"/wordcraft")
-print(sys.path)
-import numpy as np
 import argparse
 import pandas as pd
 from datetime import datetime
-import random
 import yaml
 import time
 import gym
-from structured_multi_LLM.group import Group
-
+from source.group import Group
+from envs.wordcraft.wrappers.openended.wrapper import WordcraftEnv as open_env
+from envs.wordcraft.wrappers.openended.recipe_book import Recipe as open_recipe
+from envs.wordcraft.wrappers.targeted.wrapper import WordcraftEnv as target_env
+from envs.wordcraft.wrappers.targeted.recipe_book import Recipe as target_recipe
 
 # ----- general utils -----
 def parse_flags():
+    """ Parse flags that configure the experiment
+     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--model_name',
-                        type=str,
-                        default="random",
-                        help='The name of the language model. Choose between openassistant, chatgpt, random, '
-                             'uncertainty, empower and empower-onestep.')
-
-    parser.add_argument('--encoded',
-                        action='store_true',
-                        help="If true, words will be replaced by random symbols.")
-
-    parser.add_argument('--forbid_repeats',
-                        action='store_true',
-                        help="If true, forbid baseline methods from repeating an action within a task.")
-
-    parser.add_argument('--openended',
-                        action='store_true',
-                        help="If true, tasks do not have a target.")
-
+    # ----- configure task ----
     parser.add_argument('--trial',
                         type=int,
                         default=0,
-                        help='The index of the current trial. All trials have the same tasks.')
+                        help='The index of the current trial. Trials with the same index contain the same tasks.')
 
     parser.add_argument('--num_tasks',
                         type=int,
@@ -46,58 +34,94 @@ def parse_flags():
                         help='The number of tasks within each trial. Tasks differ in terms of available items and '
                              'target.')
 
-    parser.add_argument('--num_distractors',
-                        type=int,
-                        default=6,
-                        help='The number of distractors (initial items not useful for crafting target)')
-
-    parser.add_argument('--depth',
-                        type=int,
-                        default=1,
-                        help='Depth of tasks.')
-
     parser.add_argument('--num_steps',
                         type=int,
                         default=6,
                         help='Maximum number available to solve a single task.')
 
-    parser.add_argument('--num_agents', type=int,
-                        help='Number of agents',
-                        default=1)
+    parser.add_argument('--openended',
+                        action='store_true',
+                        help="If true, tasks do not have a target.")
+
+    parser.add_argument('--encoded',
+                        action='store_true',
+                        help="If true, items in Wordcraft will be replaced by random symbols.")
+
+    parser.add_argument('--num_distractors',
+                        type=int,
+                        default=6,
+                        help='Only valid for targeted tasks, defines '
+                             'The number of distractors (initial items not useful for crafting target)')
+
+    parser.add_argument('--depth',
+                        type=int,
+                        default=1,
+                        help='Only valid for targeted tasks, , defines the number of items needed to construct'
+                             'the target item (in practise needs to be a small value because Wordcraft'
+                             ' takes too long to discover tasks. ')
+
+    # ----------------------------------------------------------------------------
+    # ----- configure agent ----
+    parser.add_argument('--agent_type',
+                        type=str,
+                        default="random",
+                        help='The type of agent. Choose between openassistant, chatgpt, random, '
+                             'uncertainty, empower and empower-onestep.')
+
+    parser.add_argument('--forbid_repeats',
+                        action='store_true',
+                        help="If true, forbid baseline methods (we cannot directly forbid LLMs) from repeating an action within a task.")
 
     parser.add_argument('--retry',
                         type=int,
                         default=6,
-                        help='Number of times the llm can retry due to already tried combination')
+                        help='Number of times an agent can re-attempt a step (due to choosing an already attempted action)')
 
     parser.add_argument('--temperature',
                         type=float,
-                        help='temperature of llm',
+                        help='Temperature for soft-max of LLM',
                         default=1)
 
     parser.add_argument('--top_p',
                         type=float,
-                        help='for llm sampling',
+                        help='Cut-off value for nucleus sampling of LLM',
                         default=0.9)
+
+    # ----------------------------------------------------------------------------
+    # ----- configure group ----
+
+    parser.add_argument('--num_agents', type=int,
+                        help='Number of agents',
+                        default=1)
 
     parser.add_argument('--connectivity',
                         type=str,
-                        help='social network structure',
+                        help='Social connectivity. Choose between "fully-connected" and "dynamic"',
                         default="fully-connected")
 
     parser.add_argument('--visit_duration',
                         type=int,
-                        help='social network structure',
+                        help='Only valid for dynamic connectivity, defines the number of timesteps a visit lasts.',
                         default=5)
 
     parser.add_argument('--visit_prob',
                         type=float,
-                        help='social network structure',
+                        help='Only valid for dynamic connectivity, defines the probability that a random agent will visit'
+                             'a random subgroup',
                         default=0.1)
+
+    # ----------------------------------------------------------------------------
 
     args = parser.parse_args()
     return args
+
+
 def setup_dir(args):
+    """ Create a dedicated directory for the project.
+
+    Params:
+        args (dict): input flags configuring the project
+    """
     top_dir = args["results_dir"]
     project_dir = [key + "_" + str(el) for key, el in args.items() if key != "trial" and key != "results_dir"]
     project_dir = top_dir + "results/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir) + "_70B"
@@ -108,52 +132,47 @@ def setup_dir(args):
     with open(project_dir + "/config.yaml", "w") as f:
         yaml.dump(args, f, default_flow_style=False)
 
-    print("project dir " + project_dir)
+    print("Project created under directory: " + project_dir)
 
     return project_dir
 
+
 def create_envs(env_args, seed):
     if env_args["openended"]:
-        os.chdir("wordcraft")
-        print(os.getcwd())
-        from wordcraft_openended.env import WordCraftEnv
-        from wordcraft_openended.recipe_book import Recipe
 
         env = gym.make(
             'wordcraft-multistep-goal-v0',
             encoded=env_args["encoded"],
             max_mix_steps=env_args["steps"] + 1,
             seed=seed)
-        os.chdir("..")
-        from envs.wordcraft.openended.wrapper import WordcraftEnvForLLM
-        env = WordcraftEnvForLLM(env, encoded=env_args["encoded"])
+        env = open_env(env, encoded=env_args["encoded"])
 
     else:
-        #os.chdir("wordcraft")
-        #print(os.getcwd())
-
-        from wordcraft.env import WordCraftEnv
 
         env = gym.make(
-                'wordcraft-multistep-goal-v0',
-                max_depth=env_args["depth"],
-                max_mix_steps=env_args["steps"]+1,
-                num_distractors=env_args["distractors"],
-                seed=seed)
-        #os.chdir("..")
+            'wordcraft-multistep-goal-v0',
+            max_depth=env_args["depth"],
+            max_mix_steps=env_args["steps"] + 1,
+            num_distractors=env_args["distractors"],
+            seed=seed)
 
-        from envs.wordcraft.targeted.wrapper import WordcraftEnvForLLM
-        env = WordcraftEnvForLLM(env, encoded=env_args["encoded"])
-
+        env = target_env(env, encoded=env_args["encoded"])
 
     env.reset()
     return env
 
+
 def summarize_task(results, task):
     print("success for task " + str(task))
-    print(results.loc[len(results)-1]["success"])
+    print(results.loc[len(results) - 1]["success"])
+
 
 def play(args):
+    """ Main function for running a single trial.
+
+    Params:
+    args (dict): input flags configuring the project
+    """
     # set up
     project_dir = setup_dir(args)
 
@@ -175,7 +194,6 @@ def play(args):
                   forbid_repeats=args["forbid_repeats"],
                   temperature=args["temperature"],
                   top_p=args["top_p"])
-
 
     # will save experiment results here
     results = pd.DataFrame(columns=["trial",
@@ -201,7 +219,7 @@ def play(args):
         # creates a new environment for each agent
         envs = []
         for agent in group.agents:
-            envs.append(create_envs(env_args, task) )
+            envs.append(create_envs(env_args, task))
 
         group.reset_task(task, envs)
 
@@ -209,16 +227,13 @@ def play(args):
         for step in range(args["num_steps"]):
             group_results = group.step(step)
 
-            # notice this has multilpe elements for each agent
             for agent_results in group_results:
-
                 results.loc[len(results)] = agent_results
 
-            if step%50==0:
+            if step % 50 == 0:
                 # save all results
                 with open(project_dir + "/data/results_" + str(args["trial"]) + ".pkl", "wb") as f:
                     results.to_pickle(f)
-
 
         group.wrap_up()
 
@@ -226,15 +241,12 @@ def play(args):
             results.to_pickle(f)
 
         summarize_task(results, task)
+    end_time = time.time()
+    print("Trial ended. Results saved under " + project_dir + "/data/results_" + str(args["trial"]))
+    print("Trial lasted: " + str(end_time-start_time) + " seconds.")
 
-
-
-
-    print("Trial ended. Results saved under " + project_dir + "/data/results_" + str(args["trial"]) )
 
 if __name__ == "__main__":
     args = vars(parse_flags())
     args["results_dir"] = "results"
     play(args)
-
-

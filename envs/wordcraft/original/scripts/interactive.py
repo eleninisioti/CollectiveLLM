@@ -3,8 +3,8 @@ import argparse
 import torch
 import gym
 
-from wordcraft.recipe_book import RecipeBook
-from wordcraft.env import WordCraftEnv
+from wordcraft_todelete.recipe_book import RecipeBook
+from wordcraft_todelete.env import WordCraftEnv
 from models import Human
 
 

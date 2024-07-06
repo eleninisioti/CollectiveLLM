@@ -186,7 +186,7 @@ class EmpowerCulturalEvolutionAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -239,7 +239,7 @@ class EmpowerAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -295,7 +295,7 @@ class NoisyEmpowerAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -348,7 +348,7 @@ class Noisyv2EmpowerAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -412,7 +412,7 @@ class EmpowerOnestepAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
             recipe = Recipe(comb)
             new_el = self.env.wordcraft_env.recipe_book.evaluate_recipe(recipe)

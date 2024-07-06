@@ -12,7 +12,7 @@ custom_palette = ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93"]
 # ----- global configuration of plots -----
 params = {'legend.fontsize': 14,
           "figure.autolayout": True,
-          'font.size': 14,
+          'font.size': 16,
           #"image.cmap": custom_palette,
           "axes.prop_cycle": plt.cycler(color=custom_palette)}
 plt.rcParams.update(params)
@@ -257,5 +257,5 @@ def openended():
 
 
 if __name__ == "__main__":
-    #targeted()
-    openended()
+    targeted()
+    #openended()

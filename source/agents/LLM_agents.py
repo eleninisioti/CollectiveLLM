@@ -1,4 +1,4 @@
-from structured_multi_LLM.base_agent import Agent
+from source.base_agent import Agent
 import openai
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from typing import List, Optional

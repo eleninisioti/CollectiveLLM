@@ -20,7 +20,7 @@ import gym
 import timeit
 
 from utils.dotdict import DotDict
-from wordcraft.env import WordCraftEnv
+from wordcraft_todelete.env import WordCraftEnv
 
 
 def _format_env_output(output):

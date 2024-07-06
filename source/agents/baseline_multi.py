@@ -1,21 +1,13 @@
-from structured_multi_LLM.base_agent import Agent
+""" Defines agents that are not LLMs (random, uncertainty, empower).
+"""
+
+from source.agents.base_agent import Agent
 from collections import Counter
 import numpy as np
 import time
 import random
 import os
 
-
-def softmax_with_temperature(logits, temperature):
-    logits = np.array(logits)
-    # Apply temperature scaling
-    logits = logits/temperature
-
-    # Compute softmax
-    exp_logits = np.exp(logits)
-    softmax_probs = exp_logits / np.sum(exp_logits)
-
-    return softmax_probs
 
 class RandomAgent(Agent):
     """" Chooses two random items from the inventory.
@@ -50,10 +42,6 @@ class RandomAgent(Agent):
                 counter+=1
         output = "Combination: '" + random_word1 + "' and '" + random_word2 + "'"
         return output
-
-
-
-
 
 
 class CulturalEvolutionAgent(Agent):
@@ -182,7 +170,7 @@ class EmpowerCulturalEvolutionAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -235,7 +223,7 @@ class EmpowerAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -291,7 +279,7 @@ class NoisyEmpowerAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -344,7 +332,7 @@ class Noisyv2EmpowerAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
 
             recipe = Recipe(comb)
@@ -408,7 +396,7 @@ class EmpowerOnestepAgent(Agent):
         empower_values = []
         for comb in all_combs:
             os.chdir("wordcraft")
-            from wordcraft.recipe_book import Recipe
+            from wordcraft_todelete.recipe_book import Recipe
             os.chdir("..")
             recipe = Recipe(comb)
             new_el = self.env.wordcraft_env.recipe_book.evaluate_recipe(recipe)

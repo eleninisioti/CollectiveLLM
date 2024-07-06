@@ -2,7 +2,7 @@ import os, sys
 sys.path.append(os.getcwd())
 
 #from probs.test_knowledge.play import play
-from structured_multi_LLM.play import play
+from source.play import play
 config = {"retry": 6,
           "temperature": 1,
           "results_dir": "",

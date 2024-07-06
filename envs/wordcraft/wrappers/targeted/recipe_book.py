@@ -350,4 +350,3 @@ class RecipeBook:
         for recipe in aux_recipes:
             self.recipes_train.add(recipe)
             self.recipes_test.remove(recipe)
-

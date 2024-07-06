@@ -10,7 +10,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
 from utils import seed as utils_seed
-from wordcraft.recipe_book import RecipeBook
+from wordcraft_todelete.recipe_book import RecipeBook
 from utils.word2feature import FeatureMap
 from .kbcr import ComplEx
 from .kbcr.regularizers import N2, N3

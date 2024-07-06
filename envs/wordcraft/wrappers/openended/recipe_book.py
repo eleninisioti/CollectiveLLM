@@ -41,7 +41,7 @@ class Task:
 
 
 class RecipeBook:
-    def __init__(self, 
+    def __init__(self,
         data_path='datasets/alchemy2.json', max_depth=1, split=None, train_ratio=1.0, seed=None):
         self.test_mode = False
         self.train_ratio = train_ratio
@@ -131,4 +131,3 @@ class RecipeBook:
         root_entities = base_root_entities
         task = Task(base_entities=root_entities)
         return task
-

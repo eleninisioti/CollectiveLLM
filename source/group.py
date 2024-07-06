@@ -1,10 +1,16 @@
-from structured_multi_LLM.base_agent import Agent
-from structured_multi_LLM.baseline_agents import RandomAgent, UncertaintyAgent, EmpowerAgent, EmpowerOnestepAgent, NoisyEmpowerAgent, Noisyv2EmpowerAgent, CulturalEvolutionAgent, EmpowerCulturalEvolutionAgent
-from structured_multi_LLM.LLM_agents import OAAgent, ChatgptAgent, ChatgptCulturalevoAgent, LLama2Agent, LLama2AgentWithCopy
+""" Defines a group of agents solving a Wordcraft task.
+"""
+
+from source.agents.base_agent import Agent
+from source.agents.baseline_agents import RandomAgent, UncertaintyAgent, EmpowerAgent, EmpowerOnestepAgent, NoisyEmpowerAgent, Noisyv2EmpowerAgent, CulturalEvolutionAgent, EmpowerCulturalEvolutionAgent
+from source.agents.LLM_agents import OAAgent, ChatgptAgent, ChatgptCulturalevoAgent, LLama2Agent, LLama2AgentWithCopy
 import random
 import numpy as np
 from itertools import combinations
-from wordcraft_openended.recipe_book import (Recipe)
+from envs.wordcraft.wrappers.openended.recipe_book import Recipe as open_recipe
+from envs.wordcraft.wrappers.targeted.recipe_book import Recipe as target_recipe
+
+
 class Group:
 
     def __init__(self, num_agents, model_name, connectivity, visit_prob, visit_duration, openended, project_dir, trial, forbid_repeats, temperature, top_p):
@@ -252,7 +258,7 @@ class Group:
 
             agent.neighbors = neighbors
 
-    def visit(self,   current_step):
+    def visit(self, current_step):
         random.shuffle(self.agents)
         with open(self.visit_log, "a") as f:
             for agent in self.agents:
