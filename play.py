@@ -14,10 +14,10 @@ from datetime import datetime
 import yaml
 import time
 import gym
-from source.group import Group
+from CoLLM.group import Group
 import env.little_alchemy_2_text.openended.env
 import env.little_alchemy_2_text.targeted.env
-
+from CoLLM.visualize import viz_project
 
 # ----- general utils -----
 def parse_flags():
@@ -26,9 +26,9 @@ def parse_flags():
     parser = argparse.ArgumentParser()
 
     # ----- configure task ----
-    parser.add_argument('--trial',
+    parser.add_argument('--num_trials',
                         type=int,
-                        default=0,
+                        default=3,
                         help='The index of the current trial. Trials with the same index contain the same tasks.')
 
     parser.add_argument('--num_tasks',
@@ -140,9 +140,21 @@ def setup_dir(args):
     return project_dir
 
 
-def summarize_task(results, task):
-    print("success for task " + str(task))
-    print(results.loc[len(results) - 1]["success"])
+def create_env(env_config):
+    if env_config["openended"]:
+
+        env = gym.make("LittleAlchemy2TextOpen-v0",
+                       max_mix_steps=env_config["steps"],
+                       encoded=env_config["encoded"])
+
+    else:
+
+        env = gym.make("LittleAlchemy2TextTargeted-v0",
+                       max_mix_steps=env_config["steps"],
+                       num_distractors=env_config["distractors"],
+                       max_depth=env_config["depth"],
+                       encoded=env_config["encoded"])
+    return env
 
 
 def play(args):
@@ -154,62 +166,70 @@ def play(args):
     # set up
     project_dir = setup_dir(args)
 
-    env_args = {"openended": args["openended"],
-                "steps": args["num_steps"],
-                "encoded": args["encoded"],
-                "depth": args["depth"],
-                "distractors": args["num_distractors"]}
+    env_config = {"openended": args["openended"],
+                  "steps": args["num_steps"],
+                  "encoded": args["encoded"],
+                  "depth": args["depth"],
+                  "distractors": args["num_distractors"]}
+
+    env = create_env(env_config)
 
     # create group of agents
-    group = Group(num_agents=args["num_agents"],
-                  connectivity=args["connectivity"],
-                  visit_prob=args["visit_prob"],
-                  visit_duration=args["visit_duration"],
-                  openended=args["openended"],
-                  project_dir=project_dir,
-                  trial=args["trial"],
-                  agent_type=args["agent_type"],
-                  forbid_repeats=args["forbid_repeats"],
-                  temperature=args["temperature"],
-                  top_p=args["top_p"],
-                  env_config=env_args)
+    for trial in range(args["num_trials"]):
+        group = Group(seed=trial,
+                      num_agents=args["num_agents"],
+                      connectivity=args["connectivity"],
+                      visit_prob=args["visit_prob"],
+                      visit_duration=args["visit_duration"],
+                      openended=args["openended"],
+                      project_dir=project_dir,
+                      trial=trial,
+                      agent_type=args["agent_type"],
+                      forbid_repeats=args["forbid_repeats"],
+                      temperature=args["temperature"],
+                      top_p=args["top_p"],
+                      env=env)
 
-    # will save experiment results here
-    results = pd.DataFrame(columns=["trial",
-                                    "task",
-                                    "agent",
-                                    "steps",
-                                    "success",
-                                    "success_step",
-                                    "action",
-                                    "inventory_length"])
+        # will save experiment results here
+        results = pd.DataFrame(columns=["trial",
+                                        "task",
+                                        "agent",
+                                        "steps",
+                                        "success",
+                                        "success_step",
+                                        "action",
+                                        "inventory_length"])
 
-    start_time = time.time()
-    for task in range(args["num_tasks"]):
+        start_time = time.time()
+        for task in range(args["num_tasks"]):
 
-        # creates a new environment for each agen
-        group.reset_task(task)
+            # creates a new environment for each agen
+            group.reset_task(task)
 
-        # step environment until the task is solved or maximum number of steps reached
-        for step in range(args["num_steps"]):
-            group_results = group.step(step)
+            # step environment until the task is solved or maximum number of steps reached
+            for step in range(args["num_steps"]):
+                group_results = group.step(step)
 
-            for agent_results in group_results:
-                results.loc[len(results)] = agent_results
+                for agent_results in group_results:
+                    results.loc[len(results)] = agent_results
 
-            if step % 50 == 0:
-                # save intermediate results
-                with open(project_dir + "/data/results_" + str(args["trial"]) + ".pkl", "wb") as f:
-                    results.to_pickle(f)
+                if step % 50 == 0:
+                    # save intermediate results
+                    with open(project_dir + "/data/results_" + str(trial) + ".pkl", "wb") as f:
+                        results.to_pickle(f)
 
-        group.wrap_up()
+            group.wrap_up()
 
-        with open(project_dir + "/data/results_" + str(args["trial"]) + ".pkl", "wb") as f:
-            results.to_pickle(f)
+            with open(project_dir + "/data/results_" + str(trial) + ".pkl", "wb") as f:
+                results.to_pickle(f)
 
-        summarize_task(results, task)
+
+    viz_project(project_dir)
+
+
+
     end_time = time.time()
-    print("Trial ended. Results saved under " + project_dir + "/data/results_" + str(args["trial"]))
+    print("Trial ended. Results saved under " + project_dir + "/data/results_" + str(trial))
     print("Trial lasted: " + str(end_time - start_time) + " seconds.")
 
 
