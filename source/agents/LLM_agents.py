@@ -1,4 +1,4 @@
-from source.base_agent import Agent
+from source.agents.base_agent import Agent
 import openai
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from typing import List, Optional
@@ -6,7 +6,7 @@ import fire
 from llama import Llama, Dialog
 from openai import AzureOpenAI
 import os
-class LLama2Agent(Agent):
+class OllamaAgent(Agent):
     def __init__(self, openended, num_agents, temperature, top_p, **kwargs):
         super().__init__(**kwargs)
         self.openended = openended
@@ -70,78 +70,6 @@ class LLama2Agent(Agent):
         #print(output)
         #print("---- end of output of llama---")
         return output
-
-
-class LLama2AgentWithCopy(Agent):
-    def __init__(self, openended, num_agents, temperature, top_p, **kwargs):
-        super().__init__(**kwargs)
-        self.openended = openended
-        self.num_agents = num_agents
-        self.temperature = temperature
-        self.top_p = top_p
-        self.setup_llm()
-
-    def load_intro(self):
-
-        if self.num_agents > 1:
-            if self.openended:
-                filename = "prompts/openended_multi.txt"
-            else:
-                filename = "prompts/targeted_multi.txt"
-        else:
-            if self.openended:
-                filename = "prompts/openended_single.txt"
-            else:
-                filename = "prompts/targeted_single.txt"
-
-        temp = open(filename, 'r').readlines()
-        intro = " ".join(temp)
-        return intro
-
-    def setup_llm(self):
-        ckpt_dir = "/gpfsscratch/rech/imi/utw61ti/llama/llama-2-13b-chat"
-        tokenizer_path = "/gpfsscratch/rech/imi/utw61ti/llama/tokenizer.model"
-        self.max_seq_len =2200
-        self.max_batch_size = 8
-        #self.temperature = 1.0
-        #self.top_p = 0.9
-        self.max_gen_len =None
-        self.generator = Llama.build(
-            ckpt_dir=ckpt_dir,
-            tokenizer_path=tokenizer_path,
-            max_seq_len=self.max_seq_len,
-            max_batch_size=self.max_batch_size,
-            #model_parallel_size=8
-        )
-        self.intro = self.load_intro()
-
-
-    def query(self, current_step=0,state=""):
-        inventory = self.env.wordcraft_env.env.env.table
-
-        # add inventory of others
-        for agent in self.neighbors:
-            inventory.extend(agent.env.wordcraft_env.env.table)
-        inventory = list(set(inventory))
-        self.env.wordcraft_env.env.env.table = inventory
-
-        state = self.env.render()
-        dialogs: List[Dialog] = []
-        dialogs.append(
-            [{"role": "user", "content": self.intro + state},
-             ])
-
-        results = self.generator.chat_completion(
-            dialogs,  # type: ignore
-            max_gen_len=self.max_gen_len,
-            temperature=self.temperature,
-            top_p=self.top_p,
-        )
-        output = results[0]['generation']['content']
-        #print(output)
-        #print("---- end of output of llama---")
-        return output
-
 
 class ChatgptAgent(Agent):
 

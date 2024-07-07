@@ -1,9 +1,13 @@
 """ This script the main interface to our code for running simulations.
-It can be run directly by calling "python play.py --args" or by calling the method "play" from another script
+It can be run directly by calling "python play.py (args)" or by calling the method "play" from another script
 """
+import sys
+import os
 
-import os, sys
 sys.path.append(os.getcwd())
+sys.path.append("LittleAlchemy2Text/env/wordcraft")
+sys.path.append("LittleAlchemy2Text")
+
 import argparse
 import pandas as pd
 from datetime import datetime
@@ -11,10 +15,9 @@ import yaml
 import time
 import gym
 from source.group import Group
-from envs.wordcraft.wrappers.openended.wrapper import WordcraftEnv as open_env
-from envs.wordcraft.wrappers.openended.recipe_book import Recipe as open_recipe
-from envs.wordcraft.wrappers.targeted.wrapper import WordcraftEnv as target_env
-from envs.wordcraft.wrappers.targeted.recipe_book import Recipe as target_recipe
+import env.little_alchemy_2_text.openended.env
+import env.little_alchemy_2_text.targeted.env
+
 
 # ----- general utils -----
 def parse_flags():
@@ -45,7 +48,7 @@ def parse_flags():
 
     parser.add_argument('--encoded',
                         action='store_true',
-                        help="If true, items in Wordcraft will be replaced by random symbols.")
+                        help="If true, items will be replaced by random symbols.")
 
     parser.add_argument('--num_distractors',
                         type=int,
@@ -88,7 +91,7 @@ def parse_flags():
                         default=0.9)
 
     # ----------------------------------------------------------------------------
-    # ----- configure group ----
+    # ----- configure group -----
 
     parser.add_argument('--num_agents', type=int,
                         help='Number of agents',
@@ -124,7 +127,7 @@ def setup_dir(args):
     """
     top_dir = args["results_dir"]
     project_dir = [key + "_" + str(el) for key, el in args.items() if key != "trial" and key != "results_dir"]
-    project_dir = top_dir + "results/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir) + "_70B"
+    project_dir = top_dir + "/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir) + "_70B"
 
     if not os.path.exists(project_dir + "/data"):
         os.makedirs(project_dir + "/data", exist_ok=True)
@@ -135,31 +138,6 @@ def setup_dir(args):
     print("Project created under directory: " + project_dir)
 
     return project_dir
-
-
-def create_envs(env_args, seed):
-    if env_args["openended"]:
-
-        env = gym.make(
-            'wordcraft-multistep-goal-v0',
-            encoded=env_args["encoded"],
-            max_mix_steps=env_args["steps"] + 1,
-            seed=seed)
-        env = open_env(env, encoded=env_args["encoded"])
-
-    else:
-
-        env = gym.make(
-            'wordcraft-multistep-goal-v0',
-            max_depth=env_args["depth"],
-            max_mix_steps=env_args["steps"] + 1,
-            num_distractors=env_args["distractors"],
-            seed=seed)
-
-        env = target_env(env, encoded=env_args["encoded"])
-
-    env.reset()
-    return env
 
 
 def summarize_task(results, task):
@@ -190,38 +168,27 @@ def play(args):
                   openended=args["openended"],
                   project_dir=project_dir,
                   trial=args["trial"],
-                  model_name=args["model_name"],
+                  agent_type=args["agent_type"],
                   forbid_repeats=args["forbid_repeats"],
                   temperature=args["temperature"],
-                  top_p=args["top_p"])
+                  top_p=args["top_p"],
+                  env_config=env_args)
 
     # will save experiment results here
     results = pd.DataFrame(columns=["trial",
                                     "task",
                                     "agent",
-                                    "success",
                                     "steps",
-                                    "count_repeated_valid",
-                                    "count_repeated_invalid",
-                                    "count_double_action",
-                                    "count_repeated_valid_other",
-                                    "count_repeated_invalid_other",
-                                    "reward",
-                                    "global_step",
+                                    "success",
+                                    "success_step",
                                     "action",
-                                    "action_words",
-                                    "invalid_attempts", "inventory_length", "copy_time",
-                                    "perc_explore", "perc_explore_meaning"])
+                                    "inventory_length"])
 
     start_time = time.time()
     for task in range(args["num_tasks"]):
 
-        # creates a new environment for each agent
-        envs = []
-        for agent in group.agents:
-            envs.append(create_envs(env_args, task))
-
-        group.reset_task(task, envs)
+        # creates a new environment for each agen
+        group.reset_task(task)
 
         # step environment until the task is solved or maximum number of steps reached
         for step in range(args["num_steps"]):
@@ -231,7 +198,7 @@ def play(args):
                 results.loc[len(results)] = agent_results
 
             if step % 50 == 0:
-                # save all results
+                # save intermediate results
                 with open(project_dir + "/data/results_" + str(args["trial"]) + ".pkl", "wb") as f:
                     results.to_pickle(f)
 
@@ -243,7 +210,7 @@ def play(args):
         summarize_task(results, task)
     end_time = time.time()
     print("Trial ended. Results saved under " + project_dir + "/data/results_" + str(args["trial"]))
-    print("Trial lasted: " + str(end_time-start_time) + " seconds.")
+    print("Trial lasted: " + str(end_time - start_time) + " seconds.")
 
 
 if __name__ == "__main__":

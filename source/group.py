@@ -1,19 +1,14 @@
 """ Defines a group of agents solving a Wordcraft task.
 """
-
-from source.agents.base_agent import Agent
-from source.agents.baseline_agents import RandomAgent, UncertaintyAgent, EmpowerAgent, EmpowerOnestepAgent, NoisyEmpowerAgent, Noisyv2EmpowerAgent, CulturalEvolutionAgent, EmpowerCulturalEvolutionAgent
-from source.agents.LLM_agents import OAAgent, ChatgptAgent, ChatgptCulturalevoAgent, LLama2Agent, LLama2AgentWithCopy
+from source.agents.baseline_single import RandomAgent, EmpowerAgent
+from source.agents.LLM_agents import ChatgptAgent, OllamaAgent
 import random
-import numpy as np
-from itertools import combinations
-from envs.wordcraft.wrappers.openended.recipe_book import Recipe as open_recipe
-from envs.wordcraft.wrappers.targeted.recipe_book import Recipe as target_recipe
 
 
 class Group:
 
-    def __init__(self, num_agents, model_name, connectivity, visit_prob, visit_duration, openended, project_dir, trial, forbid_repeats, temperature, top_p):
+    def __init__(self, num_agents, agent_type, connectivity, visit_prob, visit_duration, openended, project_dir, trial,
+                 forbid_repeats, temperature, top_p, env_config):
         self.num_agents = num_agents
         self.connectivity = connectivity
         self.visit_prob = visit_prob
@@ -21,7 +16,7 @@ class Group:
         self.openended = openended
         self.project_dir = project_dir
         self.trial = trial
-        self.model_name = model_name
+        self.agent_type = agent_type
         self.forbid_repeats = forbid_repeats
         self.visit_log = self.project_dir + "/visit_log.txt"
         self.visit_duration = visit_duration
@@ -29,120 +24,58 @@ class Group:
         self.temperature = temperature
         self.top_p = top_p
 
+        self.env_config = env_config
+
         self._init_agents()
 
     def _init_agents(self):
         self.agents = []
         for agent_idx in range(self.num_agents):
 
-            if self.model_name == "random":
+            if self.agent_type == "random":
                 new_agent = RandomAgent(
-                          idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                forbid_repeats=self.forbid_repeats)
+                    idx=agent_idx,
+                    project_dir=self.project_dir,
+                    trial=self.trial,
+                    forbid_repeats=self.forbid_repeats,
+                    env_config=self.env_config)
 
-
-            elif self.model_name == "uncertainty":
-                new_agent = UncertaintyAgent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                forbid_repeats=self.forbid_repeats)
-            elif self.model_name == "cultural_evo":
-                new_agent = CulturalEvolutionAgent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                forbid_repeats=self.forbid_repeats)
-            elif self.model_name == "empower_cultural_evo":
-                new_agent = EmpowerCulturalEvolutionAgent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                forbid_repeats=self.forbid_repeats)
-            elif self.model_name == "empower":
+            elif self.agent_type == "empower":
                 new_agent = EmpowerAgent(idx=agent_idx,
-                                            project_dir=self.project_dir,
-                                            trial=self.trial,
-                forbid_repeats=self.forbid_repeats)
+                                         project_dir=self.project_dir,
+                                         trial=self.trial,
+                                         env_config=self.env_config)
 
-            elif self.model_name == "noisy_empower":
-                new_agent = NoisyEmpowerAgent(idx=agent_idx,
-                                            project_dir=self.project_dir,
-                                            trial=self.trial,
-                forbid_repeats=self.forbid_repeats)
-            elif self.model_name == "noisyv2_empower":
-                new_agent = Noisyv2EmpowerAgent(idx=agent_idx,
-                                              project_dir=self.project_dir,
-                                              trial=self.trial,
-                                              forbid_repeats=self.forbid_repeats)
-            elif self.model_name == "empower_onestep":
-                new_agent = EmpowerOnestepAgent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                forbid_repeats=self.forbid_repeats)
-            elif self.model_name == "chatgpt":
+
+            elif self.agent_type == "chatgpt":
                 new_agent = ChatgptAgent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
+                                         project_dir=self.project_dir,
+                                         trial=self.trial,
                                          openended=self.openended,
                                          num_agents=self.num_agents)
 
-            elif self.model_name == "chatgpt_cultural_evo":
-                new_agent = ChatgptCulturalevoAgent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                                         openended=self.openended,
-                                         num_agents=self.num_agents)
-
-            elif self.model_name == "OA":
-                new_agent = OAAgent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                                         openended=self.openended,
-                                         num_agents=self.num_agents)
-
-
-            elif self.model_name == "llama2":
-                new_agent = LLama2Agent(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                                         openended=self.openended,
-                                         num_agents=self.num_agents,
-                                        temperature=self.temperature,
-                                        top_p=self.top_p)
-
-
-            elif self.model_name == "llama2_copy":
-                new_agent = LLama2AgentWithCopy(idx=agent_idx,
-                                project_dir=self.project_dir,
-                                trial=self.trial,
-                                         openended=self.openended,
-                                         num_agents=self.num_agents,
-                                        temperature=self.temperature,
-                                        top_p=self.top_p)
-
-
-
+            elif self.agent_type in ["llama3", "llama2"]:
+                new_agent = OllamaAgent(idx=agent_idx,
+                                        agent_type=self.agent_type,
+                                        project_dir=self.project_dir,
+                                        trial=self.trial,
+                                        openended=self.openended,
+                                        num_agents=self.num_agents)
 
             self.agents.append(new_agent)
 
-        #self.agents.append(new_agent)
         self.determine_neighbors()
 
-
-
-
-
-    def reset_task(self, task, envs):
+    def reset_task(self, task):
         # create environments for all agents
         self.task = task
-        self.envs = envs
         for idx, agent in enumerate(self.agents):
-            agent.reset_task(task, self.envs[idx])
+            agent.reset_task(task)
 
     def step(self, current_step):
         if self.connectivity == "dynamic" and len(self.agents) > 2:
             # a visit takes place with chosen probability
-            self.visit( current_step)
+            self.visit(current_step)
 
         group_results = []
 
@@ -150,97 +83,37 @@ class Group:
 
             if not agent.success:
                 # get current environmental state
-                state = agent.env.render()
-                info_others = agent.add_info_others()
-                state = state + "\n" + info_others+ "\n<bot> RESPONSE\n"
-                print("SStep ",current_step)
-                print(state)
+                state = agent.env.render(agent.get_neighbor_envs())
 
-                action, failed_step = agent.query_until_valid(state=state, current_step=current_step)
-                print(action, failed_step)
+                repeat = True
 
-                if failed_step:
-                    # register that the agent did not act in this step
-                    agent.invalid_attempts += 1
-                else:
-                    # act in the environment
-                    agent.past_actions.append(action)
+                while repeat:
+                    action, items = agent.move(state)
                     obs, reward, done, info = agent.env.step(action)
-                    agent.rewards += reward
+                    repeat = info["repeat"]
 
-                    agent.write_log(state)
+                # act in the environment
+                agent.past_actions.append(items)
 
-                    if done and reward:
-                        agent.success = True
-                        agent.step = current_step
+                if done and reward:
+                    agent.success = True
+                    agent.step_solved = current_step
 
-            inventory = agent.env.wordcraft_env.env.env.table
-            if agent.success:
-                action_store = ""
-                action_words = ""
-            else:
-                if len(agent.past_actions):
-                    action_store = str(agent.past_actions[-1][0]) + ' ' + str(agent.past_actions[-1][1])
-                    action_words = inventory[agent.past_actions[-1][0]] + ' ' + inventory[agent.past_actions[-1][1]]
-                else:
-                    action_store = ""
-                    action_words = ""
+                agent.log_step(step=current_step,obs=state, action=items)
 
-            # log step to results
-            copy_time = agent.compute_copy_time(current_step)
-            time_copied = [el[1] for el in copy_time.values() if el[1] is not None]
-            copy_time = np.mean(time_copied)
-            print(copy_time)
-
-            # perc of explored space
-            possible_combs = list(combinations(agent.env.wordcraft_env.env.table, 2))
-            tuple_of_tuples = tuple(tuple(sublist) for sublist in agent.past_actions)
-
-            # Use set to get unique sublists
-            unique_actions = list(set(tuple_of_tuples))
-
-            perc_explore = len(unique_actions)/len(possible_combs)
-
-            # perc of meaningful explored space
-            recipes = [Recipe(el) for el in possible_combs]
-            results = [ agent.env.wordcraft_env.recipe_book.evaluate_recipe(recipe) for recipe in recipes]
-            results = [x for x in results if x is not None]
-            results.extend(agent.env.wordcraft_env.env.table)
-            results = list(set(results))
-            meaningful_space_size = len(list(set(results)))
-
-            meaningful_actions = len(agent.env.wordcraft_env.env.table)
-
-            perc_explore_meaning = meaningful_actions / meaningful_space_size
-
-            print("step " + str(agent.step) + " inventory length:" + str(len(agent.env.wordcraft_env.env.table)))
-
-            group_results.append([self.trial,
-             self.task,
-             agent.idx,
-             agent.success,
-             agent.step,
-             agent.count_repeats_valid,
-             agent.count_repeats_invalid,
-             agent.count_double_action,
-             agent.count_repeats_valid_other,
-             agent.count_repeats_invalid_other,
-             agent.rewards,
-             current_step,
-             action_store,
-             action_words,
-             agent.invalid_attempts,
-             len(agent.env.wordcraft_env.env.table),
-             copy_time,
-             perc_explore,
-            perc_explore_meaning])
+                group_results.append([self.trial,
+                                      self.task,
+                                      agent.idx,
+                                      current_step,
+                                      agent.success,
+                                      agent.step_solved,
+                                      items,
+                                      len(agent.env.get_inventory())])
         return group_results
 
     def wrap_up(self):
         for agent in self.agents:
             agent.wrapup_task()
-
-
 
     def determine_neighbors(self):
         for agent in self.agents:
@@ -290,7 +163,8 @@ class Group:
                     neighb.neighbors.remove(agent)
                     agent.neighbors.remove(neighb)
                 # pick agent to visit
-                to_visit = random.choice([pot for pot in self.agents if (pot != agent) and (pot not in agent.prev_group)])
+                to_visit = random.choice(
+                    [pot for pot in self.agents if (pot != agent) and (pot not in agent.prev_group)])
                 with open(self.visit_log, "a") as f:
                     f.write(" he is visiting " + str(to_visit.idx))
 
@@ -299,4 +173,3 @@ class Group:
                     neighb.neighbors.append(agent)
                     agent.neighbors.append(neighb)
                 to_visit.neighbors.append(agent)
-

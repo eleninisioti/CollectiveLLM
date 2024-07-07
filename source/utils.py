@@ -1,3 +1,5 @@
+import numpy as np
+
 def find_nth(haystack, needle, n):
     """ Find the nth occurrence of sub-string in string.
      """
