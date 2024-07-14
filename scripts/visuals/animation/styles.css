@@ -1,5 +1,7 @@
 html,
 body {
+    overflow-y: hidden;
+    overflow-x: hidden;
     background-color: #fff;
     /* Little Alchemy 2 purple shade */
     font-family: Arial, sans-serif;
