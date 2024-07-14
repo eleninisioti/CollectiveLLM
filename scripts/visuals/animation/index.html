@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,32 +16,30 @@
 
 
 </head>
-<body style="height: 100%">
-<div class="row" style="height: 100%">
-    <div class="col-md-3" style="height: 100%; display:flex;justify-content:center;align-items:center;">
+<body>
+<div class="row full-height">
+    <div class="col-md-3 center-items">
         <div class="graphs">
             <div class="canvas-container">
-                <canvas id="graphCanvas_fully" width="600" height="600"></canvas>
+                <canvas id="graphCanvas_fully" width="400" height="400"></canvas>
                 <div class="overlay-text">Fully-connected group</div>
             </div>
              <div class="canvas-container">
-                <canvas id="graphCanvas_dynamic" width="600" height="600"></canvas>
+                <canvas id="graphCanvas_dynamic" width="400" height="400"></canvas>
                 <div class="overlay-text-dynamic">Dynamic group</div>
             </div>
         </div>
     </div>
-    <div class="col-md-5" style="height: 100%; display:flex;justify-content:center;align-items:center;">
-        <div class="graphs me-3">
-            <div id="chatMessageList" class="texts chat-message-list flex-grow-1"></div>
-            <div id="chatMessageListDynamic" class="texts chat-message-list-dynamic flex-grow-1"></div>
-
+    <div class="col-md-4 center-items full-height">
+        <div class="me-3 full">
+            <div id="chatMessageList" class="texts chat-message-list"></div>
+            <div id="chatMessageListDynamic" class="texts chat-message-list-dynamic"></div>
         </div>
 
     </div>
 
-    <div class="col-md-4" style="height: 100%; display:flex;justify-content:center;align-items:center;">
+    <div class="col-md-5 center-items">
         <canvas id="myLineChart" width="600" height="400"></canvas>
-        <script src="lineplot.js"></script>
     </div>
 
 
@@ -52,4 +50,5 @@
 <script src="dynamic.js"></script>
 <script src="text_fully.js"></script>
 <script src="text_dynamic.js"></script>
+<script src="lineplot.js"></script>
 </html>
