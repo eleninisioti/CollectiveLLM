@@ -1,0 +1,136 @@
+body {
+    background-color: #fff; /* Little Alchemy 2 purple shade */
+    font-family: Arial, sans-serif;
+    color: #000; /* Black text color */
+    margin: 0;
+    padding: 0;
+}
+
+.root {
+    display: inline;
+}
+
+.graphs {
+    margin-right: 20px; /* Add space between graphs and chat messages */
+    margin-left: 2px; /* Add space between graphs and chat messages */
+}
+
+canvas {
+    margin-bottom: 0px; /* Add space between canvases */
+    display: block;
+    background-color: #ffffff; /* White background for canvas */
+}
+
+#graphCanvas_fully {
+    border: 10px solid #ff7979; /* Red border for graphCanvas_fully */
+    border-radius: 15px; /* Rounded corners for graphCanvas_fully */
+}
+
+#graphCanvas_dynamic {
+    border: 10px solid #6ab04c; /* Green border for graphCanvas_dynamic */
+    border-radius: 15px; /* Rounded corners for graphCanvas_dynamic */
+}
+
+.full-width {
+    margin: 10px;
+    width: 100%;
+}
+
+.chat-message-list {
+    flex-grow: 1; /* Allow chat-message-list to take the remaining space */
+    height: 900px;
+    border-radius: 10px;
+    border: 10px solid #ff7979;
+    padding: 10px;
+    margin: 0px;
+    overflow-y: scroll;
+    background-color: #fff; /* White background for chat messages list */
+    color: #000; /* Black text color for chat messages */
+    width: 80%; /* Adjust width as needed to make it wider */
+    max-width: 1200px; /* Optional: Set a max-width to prevent it from becoming too wide */
+    position: relative; /* Position relative for the bubble tail */
+}
+
+.chat-message {
+    padding: 10px; /* Increased padding for better spacing */
+    min-height: 5px;
+    font-family: "Roboto Light", "Ubuntu Light", "Ubuntu", monospace;
+    font-size: 20px;
+    border-radius: 15px; /* Rounded corners for the bubble */
+    border: 2px solid black;
+    background-color: #fff; /* White background for individual chat message */
+    color: #000; /* Black text color for individual chat message */
+    margin-bottom: 10px; /* Add space between individual chat messages */
+    box-sizing: border-box; /* Include padding and border in the element's total width */
+    position: relative; /* Position relative for the bubble tail */
+}
+
+/* Style for highlighted text */
+.highlight_fully {
+    color: #ff7979; /* Red color for the highlighted text */
+    font-weight: bold; /* Bold text */
+}
+
+.highlight_dynamic {
+    color: #6ab04c; /* Red color for the highlighted text */
+    font-weight: bold; /* Bold text */
+}
+
+/* Tail for the speech bubble */
+.chat-message:before {
+    content: '';
+    position: absolute;
+    bottom: -10px; /* Adjust to position the tail */
+    left: 20px; /* Adjust to position the tail */
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #000; /* Match the background color of the bubble */
+}
+
+/* Tail positioning for right-aligned messages */
+.chat-message.right:before {
+    left: auto;
+    right: 20px; /* Adjust to position the tail on the right side */
+    border-top-color: #000; /* Match the background color of the bubble */
+}
+
+
+.chat-message-list-dynamic {
+    flex-grow: 1; /* Allow chat-message-list to take the remaining space */
+    height: 900px;
+    border-radius: 10px;
+    border: 10px solid #6ab04c;
+    padding: 10px;
+    margin: 0px;
+    overflow-y: scroll;
+    background-color: #fff; /* White background for chat messages list */
+    color: #000; /* Black text color for chat messages */
+    width: 80%; /* Adjust width as needed to make it wider */
+    max-width: 1200px; /* Optional: Set a max-width to prevent it from becoming too wide */
+    position: relative; /* Position relative for the bubble tail */
+}
+
+.canvas-container {
+    position: relative;
+    display: inline-block;
+}
+.overlay-text {
+    position: absolute;
+    top: 10px;
+    left:20px;
+    font-size: 26px;
+    color: #ff7979;
+    pointer-events: none; /* Makes sure the text does not interfere with canvas interaction */
+}
+
+.overlay-text-dynamic {
+    position: absolute;
+    top: 10px;
+    left:20px;
+    font-size: 26px;
+    color: #6ab04c;
+    pointer-events: none; /* Makes sure the text does not interfere with canvas interaction */
+}
+

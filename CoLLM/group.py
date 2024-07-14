@@ -101,6 +101,8 @@ class Group:
                     obs, reward, done, info = agent.env.step(action)
                     repeat = info["repeat"]
 
+                agent.log_step(step=current_step, obs=state, action=action, repeat=repeat)
+
                 # act in the environment
                 agent.past_actions.append(items)
 
@@ -108,7 +110,7 @@ class Group:
                     agent.success = True
                     agent.step_solved = current_step
 
-                agent.log_step(step=current_step, obs=state, action=action)
+                #agent.log_step(step=current_step, obs=state, action=action)
 
                 group_results.append([self.trial,
                                       self.task,

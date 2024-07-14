@@ -39,4 +39,4 @@ class OllamaAgent(Agent):
         response = response['message']['content']
         action = self.env.parse_input(response)
 
-        return action
+        return action, response

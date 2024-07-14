@@ -59,7 +59,7 @@ class Agent:
 
     def move(self, state=""):
 
-        action = self._get_action(state)
+        action, output = self._get_action(state)
         counter = 0
         if self.forbid_repeats:
             already_played = action in self.past_actions
@@ -69,7 +69,7 @@ class Agent:
                 already_played = action in self.past_actions
                 counter += 1
 
-        output = "Combination: '" + action[0] + "' and '" + action[1] + "'"
+        #output = "Combination: '" + action[0] + "' and '" + action[1] + "'"
 
         return output, action
 
@@ -149,11 +149,12 @@ class Agent:
         self.count_repeats_invalid_other = 0
 
 
-    def log_step(self, step, obs, action):
+    def log_step(self, step, obs, action, repeat):
         with open(self.current_log + "/game.txt", "a") as f:
             f.write("Step " + str(step)+ "\n")
             f.write("Observation: " + obs + "\n")
             f.write("Agent output: \n" + str(action) + "\n \n")
+            f.write("Repetiton" + str(repeat))
 
 
     def update_log(self, utterance):
