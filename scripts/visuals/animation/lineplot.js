@@ -2,8 +2,8 @@
 
 // Initialize the Chart.js line chart
 const ctx = document.getElementById('myLineChart').getContext('2d');
-const datafile_fully =  "../../../results/2024_07_12/fully/post_process/max_perfs.csv";
-const datafile_dynamic =  "../../../results/2024_07_12/dynamic/post_process/mean_perfs.csv";
+const datafile_fully =  "results/2024_07_13/fully/post_process/max_perfs.csv";
+const datafile_dynamic =  "results/2024_07_13/dynamic/post_process/mean_perfs.csv";
 
 const myLineChart = new Chart(ctx, {
     type: 'line',
