@@ -1,6 +1,8 @@
 const top_dir_fully = "results/2024_07_13/fully/";
 
 let messagesFully = [];
+let textFullyInitialized = false;
+let placeFullyMessageRight = true;
 
 
 let bubbleColorsFully = [
@@ -24,16 +26,9 @@ fetch(filenameFully)
                 let agent = line.substring(0, 7); // Or use line.slice(0, 6);
                 messagesFully.push({ agent: agent, text: line.trim() });
             }
-        });
-    }).then(whatever => {
-        let right = true;
-
-        for (let i = 0; i < messagesFully.length; i++) {
-            setTimeout(function () {
-                addMessageFully(messagesFully[i].text, right);
-                right = !right;
-            }, i * 2000 + 2000 * (i > 0));
-        }
+        });  
+    }).then(c => {
+        textFullyInitialized = true;
     })
     .catch(error => {
         console.error('Error loading file:', error);
@@ -58,3 +53,9 @@ function addMessageFully(text, right) {
         d.append("<div class=\"row message-row\" ><div class='col-md-9 chat-message'>" + formattedText + "</div><div class='col-md-2'></div><div class='col-md-1'></div></div>");
     d.scrollTop(d.prop("scrollHeight"));
 }
+
+document.addEventListener('dataUpdateEvent', function(event){
+    addMessageFully(messagesDynamic[event.detail.index].text, placeFullyMessageRight);
+    placeFullyMessageRight = !placeFullyMessageRight;
+});
+

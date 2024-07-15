@@ -1,6 +1,8 @@
 const top_dir = "results/2024_07_13/dynamic/";
 
 let messagesDynamic = [];
+let textDynamicInitialized = false;
+let placeDynamicMessageRight = true;
 
 
 let bubbleColors = [
@@ -25,14 +27,8 @@ fetch(filename)
                 messagesDynamic.push({ agent: agent, text: line.trim() });
             }
         });
-    }).then(whatever => {
-        let right = true;
-        for (let i = 0; i < messagesDynamic.length; i++) {
-            setTimeout(function () {
-                addMessageDynamic(messagesDynamic[i].text, right);
-                right = !right;
-            }, i * 2000 + 2000 * (i > 0));
-        }
+    }).then(c => {
+        textDynamicInitialized = true;
     })
     .catch(error => {
         console.error('Error loading file:', error);
@@ -49,8 +45,6 @@ let colors = [
 
 function addMessageDynamic(text, right) {
     var d = $('#chatMessageListDynamic');
-    const chatMessageListDynamic = document.getElementById('');
-
     let formattedText = text.replace(/(Reasoning)/g, '<span class="highlight_fully">$1</span>');
     formattedText = formattedText.replace(/(Combination)/g, '<span class="highlight_fully">$1</span>');
 
@@ -60,3 +54,8 @@ function addMessageDynamic(text, right) {
         d.append("<div class=\"row message-row\" ><div class='col-md-9 chat-message'>" + formattedText + "</div><div class='col-md-2'></div><div class='col-md-1'></div></div>");
     d.scrollTop(d.prop("scrollHeight"));
 }
+
+document.addEventListener('dataUpdateEvent', function(event){
+    addMessageDynamic(messagesDynamic[event.detail.index].text, placeDynamicMessageRight);
+    placeDynamicMessageRight = !placeDynamicMessageRight;
+});
