@@ -55,7 +55,7 @@ function addMessageFully(text, right) {
 }
 
 document.addEventListener('dataUpdateEvent', function(event){
-    addMessageFully(messagesDynamic[event.detail.index].text, placeFullyMessageRight);
+    addMessageFully(messagesFully[event.detail.index].text, placeFullyMessageRight);
     placeFullyMessageRight = !placeFullyMessageRight;
 });
 
