@@ -2,8 +2,8 @@
 
 // Initialize the Chart.js line chart
 const ctx = document.getElementById('myLineChart').getContext('2d');
-const datafile_fully =  "../../../results/2024_07_12/num_trials_3_num_tasks_1_num_steps_200_openended_True_encoded_False_num_distractors_6_depth_1_agent_type_llama3_forbid_repeats_False_retry_6_temperature_1_top_p_0.9_num_agents_6_connectivity_fully-connected_visit_duration_5_visit_prob_0.1_70B/post_process/max_perfs.csv";
-const datafile_dynamic =  "../../../results/2024_07_12/num_trials_3_num_tasks_1_num_steps_200_openended_True_encoded_False_num_distractors_6_depth_1_agent_type_llama3_forbid_repeats_False_retry_6_temperature_1_top_p_0.9_num_agents_6_connectivity_fully-connected_visit_duration_5_visit_prob_0.1_70B/post_process/mean_perfs.csv";
+const datafile_fully =  "../../../results/2024_07_12/fully/post_process/max_perfs.csv";
+const datafile_dynamic =  "../../../results/2024_07_12/dynamic/post_process/mean_perfs.csv";
 
 const myLineChart = new Chart(ctx, {
     type: 'line',

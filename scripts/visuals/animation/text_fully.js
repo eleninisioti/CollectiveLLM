@@ -1,8 +1,6 @@
-// Define messages
+const top_dir = "results/2024_07_13/fully";
 
-const top_dir = "../../../results/2024_07_13/num_trials_3_num_tasks_1_num_steps_200_openended_True_encoded_False_num_distractors_6_depth_1_agent_type_llama3_forbid_repeats_False_retry_6_temperature_1_top_p_0.9_num_agents_6_connectivity_fully-connected_visit_duration_5_visit_prob_0.1_70B/";
-
-let messages = [];
+let messagesFully = [];
 
 
 let bubbleColors = [
@@ -17,38 +15,29 @@ let bubbleColors = [
 
 const filename = top_dir + "/post_process/dialogue.txt";
 fetch(filename)
-.then(response => response.text())
-.then(contents => {
-    const lines = contents.split('\n');
+    .then(response => response.text())
+    .then(contents => {
+        const lines = contents.split('\n');
 
-    lines.forEach((line, index) => {
-        if (line.trim()) { // skip empty lines
-            let agent = line.substring(0, 7); // Or use line.slice(0, 6);
-            messages.push({agent: agent, text: line.trim()});
+        lines.forEach((line, index) => {
+            if (line.trim()) { // skip empty lines
+                let agent = line.substring(0, 7); // Or use line.slice(0, 6);
+                messagesFully.push({ agent: agent, text: line.trim() });
+            }
+        });
+    }).then(whatever => {
+        let right = true;
+
+        for (let i = 0; i < messagesFully.length; i++) {
+            setTimeout(function () {
+                addMessage(messagesFully[i].text, right);
+                right = !right;
+            }, i * 2000 + 2000 * (i > 0));
         }
+    })
+    .catch(error => {
+        console.error('Error loading file:', error);
     });
-}).then(whatever => {
-let right = true;
-
-for (let i = 0; i < messages.length; i++) {
-    setTimeout(function () {
-        addMessage(messages[i].text, right);
-        right = !right;
-    }, i * 2000 + 2000*(i>0));
-}
-})
-.catch(error => {
-    console.error('Error loading file:', error);
-});
-
-
-
-//messages = reorderMessages(messages);
-
-
-
-
-
 
 // Define colors for different agents
 let colors = [
@@ -100,31 +89,12 @@ function drawBubble(ctx, x, y, width, height, isLeft) {
 
 function addMessage(text, right) {
     var d = $('#chatMessageList');
-    const chatMessageList = document.getElementById('');
-
     let formattedText = text.replace(/(Reasoning)/g, '<span class="highlight_fully">$1</span>');
     formattedText = formattedText.replace(/(Combination)/g, '<span class="highlight_fully">$1</span>');
 
     if (right)
         d.append("<div class=\"row full-width\" ><div class='col-md-4'></div><div class='col-md-3'></div><div class='col-md-4 chat-message'>" + formattedText + "</div></div>");
     else
-        d.append("<div class=\"row full-width\" ><div class='col-md-4 chat-message'>" +  formattedText  + "</div><div class='col-md-3'></div><div class='col-md-4'></div></div>");
+        d.append("<div class=\"row full-width\" ><div class='col-md-4 chat-message'>" + formattedText + "</div><div class='col-md-3'></div><div class='col-md-4'></div></div>");
     d.scrollTop(d.prop("scrollHeight"));
 }
-
-/*
-$(document).ready(function () {
-    console.log("document ready");
-    let right = true;
-
-    for (let i = 0; i < messages.length; i++) {
-        setTimeout(function () {
-            addMessage(messages[i].text, right);
-            right = !right;
-        }, i * 1000 + 1000);
-    }
-
-});
-*/
-// Initial draw on both text canvases
-//drawMessages(ctxText1, canvasText1);
