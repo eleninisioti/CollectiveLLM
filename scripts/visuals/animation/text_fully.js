@@ -53,8 +53,8 @@ function addMessageFully(text, right) {
     formattedText = formattedText.replace(/(Combination)/g, '<span class="highlight_fully">$1</span>');
 
     if (right)
-        d.append("<div class=\"row full-width\" ><div class='col-md-4'></div><div class='col-md-3'></div><div class='col-md-4 chat-message'>" + formattedText + "</div></div>");
+        d.append("<div class=\"row message-row\" ><div class='col-md-1'></div><div class='col-md-2'></div><div class='col-md-9 chat-message'>" + formattedText + "</div></div>");
     else
-        d.append("<div class=\"row full-width\" ><div class='col-md-4 chat-message'>" + formattedText + "</div><div class='col-md-3'></div><div class='col-md-4'></div></div>");
+        d.append("<div class=\"row message-row\" ><div class='col-md-9 chat-message'>" + formattedText + "</div><div class='col-md-2'></div><div class='col-md-1'></div></div>");
     d.scrollTop(d.prop("scrollHeight"));
 }
