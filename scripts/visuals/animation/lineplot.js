@@ -4,7 +4,10 @@
 const ctx = document.getElementById('myLineChart').getContext('2d');
 const datafile_fully = "results/2024_07_13/dynamic/post_process/max_perfs.csv";
 const datafile_dynamic = "results/2024_07_13/dynamic/post_process/mean_perfs.csv";
-// Create a custom event with additional data
+let linePlotInitialized = false;
+let index = 0; // Start index for data points
+let dataSets = [];
+
 
 const myLineChart = new Chart(ctx, {
     type: 'line',
@@ -86,26 +89,16 @@ function parseCSVData(csv) {
     return data;
 }
 
-// Function to gradually update the chart with data from a given dataset index
-function graduallyUpdateChart(dataSets) {
-    let index = 0; // Start index for data points
-    const interval = 1000; // Time interval for each update (ms)
-
-    const intervalId = setInterval(() => {
-        for (let datasetIndex = 0; datasetIndex < myLineChart.data.datasets.length; datasetIndex++) {
-            let data = dataSets[datasetIndex];
-            if (index >= data.length) {
-                clearInterval(intervalId);
-                return
-            }
-            myLineChart.data.datasets[datasetIndex].data.push(data[index]);
-            myLineChart.data.labels.push(data[index].x); // Optionally update x-axis labels
-            myLineChart.update();
-        }
-        let dataUpdateEvent = new CustomEvent('dataUpdateEvent', { detail: { index: index } });
-        document.dispatchEvent(dataUpdateEvent);
-        index++;
-    }, interval);
+function updateChart() {
+    for (let datasetIndex = 0; datasetIndex < myLineChart.data.datasets.length; datasetIndex++) {
+        let data = dataSets[datasetIndex];
+        if (index >= data.length)
+            return;
+        myLineChart.data.datasets[datasetIndex].data.push(data[index]);
+        myLineChart.data.labels.push(data[index].x); // Optionally update x-axis labels
+        myLineChart.update();
+    }
+    index++;
 }
 
 // Fetch and parse both CSV files, then start gradual update
@@ -121,14 +114,8 @@ function fetchAndUpdateCharts() {
                 .then(response => response.text())
                 .then(csv => {
                     const data2 = parseCSVData(csv);
-                    const interval = setInterval(() => {
-                        if (textFullyInitialized && textDynamicInitialized) {
-                            clearInterval(interval);
-                            // Gradually update chart with both datasets
-                            graduallyUpdateChart([data1, data2]);
-                        }
-                    }, 10);
-
+                    dataSets = [data1, data2];
+                    linePlotInitialized = true;
                 })
                 .catch(error => {
                     console.error('Error loading second CSV file:', error);
@@ -141,3 +128,7 @@ function fetchAndUpdateCharts() {
 
 // Call the function to fetch and update the chart
 fetchAndUpdateCharts();
+
+document.addEventListener('plotUpdateEvent', function (event) {
+    updateChart();
+});

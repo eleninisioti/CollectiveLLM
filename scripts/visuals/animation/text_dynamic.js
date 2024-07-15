@@ -3,6 +3,7 @@ const top_dir = "results/2024_07_13/dynamic/";
 let messagesDynamic = [];
 let textDynamicInitialized = false;
 let placeDynamicMessageRight = true;
+let textDynamicIndex = 0;
 
 
 let bubbleColors = [
@@ -56,6 +57,9 @@ function addMessageDynamic(text, right) {
 }
 
 document.addEventListener('dataUpdateEvent', function(event){
-    addMessageDynamic(messagesDynamic[event.detail.index].text, placeDynamicMessageRight);
+    if(messagesDynamic.length <= textFullyIndex)
+        return;
+    addMessageDynamic(messagesDynamic[textDynamicIndex].text, placeDynamicMessageRight);
     placeDynamicMessageRight = !placeDynamicMessageRight;
+    textDynamicIndex += 1;
 });

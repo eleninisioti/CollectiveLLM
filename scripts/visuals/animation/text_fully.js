@@ -3,6 +3,7 @@ const top_dir_fully = "results/2024_07_13/fully/";
 let messagesFully = [];
 let textFullyInitialized = false;
 let placeFullyMessageRight = true;
+let textFullyIndex = 0;
 
 
 let bubbleColorsFully = [
@@ -55,7 +56,10 @@ function addMessageFully(text, right) {
 }
 
 document.addEventListener('dataUpdateEvent', function(event){
-    addMessageFully(messagesFully[event.detail.index].text, placeFullyMessageRight);
+    if(messagesFully.length <= textFullyIndex)
+        return;
+    addMessageFully(messagesFully[textFullyIndex].text, placeFullyMessageRight);
     placeFullyMessageRight = !placeFullyMessageRight;
+    textFullyIndex += 1;
 });
 
