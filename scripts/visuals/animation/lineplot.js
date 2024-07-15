@@ -87,23 +87,24 @@ function parseCSVData(csv) {
 }
 
 // Function to gradually update the chart with data from a given dataset index
-function graduallyUpdateChart(data) {
+function graduallyUpdateChart(dataSets) {
     let index = 0; // Start index for data points
     const interval = 1000; // Time interval for each update (ms)
 
     const intervalId = setInterval(() => {
-        if (index < data.length) {
-            for(let datasetIndex = 0; datasetIndex < myLineChart.data.datasets.length; datasetIndex++){
-                myLineChart.data.datasets[datasetIndex].data.push(data[index]);
-                myLineChart.data.labels.push(data[index].x); // Optionally update x-axis labels
-                myLineChart.update();
+        for (let datasetIndex = 0; datasetIndex < myLineChart.data.datasets.length; datasetIndex++) {
+            let data = dataSets[datasetIndex];
+            if (index >= data.length) {
+                clearInterval(intervalId);
+                return
             }
-            let dataUpdateEvent = new CustomEvent('dataUpdateEvent', { detail: { index: index }});
-            document.dispatchEvent(dataUpdateEvent);
-            index++;
-        } else {
-            clearInterval(intervalId); // Stop when all points are added
+            myLineChart.data.datasets[datasetIndex].data.push(data[index]);
+            myLineChart.data.labels.push(data[index].x); // Optionally update x-axis labels
+            myLineChart.update();
         }
+        let dataUpdateEvent = new CustomEvent('dataUpdateEvent', { detail: { index: index } });
+        document.dispatchEvent(dataUpdateEvent);
+        index++;
     }, interval);
 }
 
@@ -124,7 +125,7 @@ function fetchAndUpdateCharts() {
                         if (textFullyInitialized && textDynamicInitialized) {
                             clearInterval(interval);
                             // Gradually update chart with both datasets
-                            graduallyUpdateChart(data1);
+                            graduallyUpdateChart([data1, data2]);
                         }
                     }, 10);
 
