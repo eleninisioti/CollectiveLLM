@@ -1,0 +1,7 @@
+name: LittleAlchemy2Text
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+prefix: /Users/enis/miniconda3/envs/LittleAlchemy2Text

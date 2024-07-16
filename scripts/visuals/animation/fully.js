@@ -3,7 +3,7 @@ const ctx1 = canvas1.getContext('2d');
 
 const centerX1 = canvas1.width / 2;
 const centerY1 = canvas1.height / 2;
-const radius1 = 200; // Radius of the circle
+const radius1 = 120; // Radius of the circle
 
 const numNodes1 = 6;
 const nodes1 = [];
@@ -29,7 +29,7 @@ function draw1() {
     // Draw nodes
     nodes1.forEach(node => {
         ctx1.beginPath();
-        ctx1.arc(node.x, node.y, 30, 0, Math.PI * 2);
+        ctx1.arc(node.x, node.y, 25, 0, Math.PI * 2);
         ctx1.fillStyle = "#ff7979"; // Set fill color to blue
         ctx1.fill();
     });

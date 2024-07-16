@@ -7,7 +7,8 @@ def run_llama3_group(connectivity):
 
     args = vars(parse_flags())
     args["results_dir"] = "results"
-    args["num_steps"] = 200
+    args["num_steps"] = 300
+    args["num_trials"] = 1
     args["agent_type"] = "llama3"
     args["connectivity"] = connectivity
     args["openended"] = True
@@ -29,8 +30,8 @@ if __name__ == "__main__":
 
     #run_llama3_group(connectivity="fully-connected")
 
-    #run_llama3_group(connectivity="dynamic")
+    run_llama3_group(connectivity="dynamic")
 
 
-    run_llama3()
+    #run_llama3()
 

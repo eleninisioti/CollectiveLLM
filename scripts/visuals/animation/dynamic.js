@@ -3,7 +3,7 @@ const ctx2 = canvas2.getContext('2d');
 
 const centerX2 = canvas2.width / 2;
 const centerY2 = canvas2.height / 2;
-const radius2 = 200; // Radius of the circle
+const radius2 = 120; // Radius of the circle
 
 const numNodes2 = 6;
 const nodes2 = [];
@@ -41,7 +41,7 @@ function draw2() {
     // Draw nodes
     nodes2.forEach((node, index) => {
         ctx2.beginPath();
-        ctx2.arc(node.x, node.y, 30, 0, Math.PI * 2);
+        ctx2.arc(node.x, node.y, 25, 0, Math.PI * 2);
         ctx2.fillStyle = "##6ab04c";
 
         // Change color of the node at the current index

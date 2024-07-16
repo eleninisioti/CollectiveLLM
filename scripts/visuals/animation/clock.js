@@ -24,5 +24,5 @@ $(document).ready(function(){
             // Gradually update chart with both datasets
             startClock();
         }
-    }, 10);
+    }, 5);
 });

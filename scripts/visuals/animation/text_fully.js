@@ -25,7 +25,8 @@ fetch(filenameFully)
         lines.forEach((line, index) => {
             if (line.trim()) { // skip empty lines
                 let agent = line.substring(0, 7); // Or use line.slice(0, 6);
-                messagesFully.push({ agent: agent, text: line.trim() });
+                let text = line.substring(9).trim(); // Or use line.slice(5).trim();
+                messagesFully.push({ agent: agent, text: text.trim() });
             }
         });  
     }).then(c => {
@@ -37,28 +38,32 @@ fetch(filenameFully)
 
 // Define colors for different agents
 let colorsFully = [
-    'red',      // Color for Agent 0
-    'blue',     // Color for Agent 1
-    'green',    // Color for Agent 2
-    'black'     // Default color for other text
+    '#34ace0',      // Color 1
+    '#33d9b2',     // Color 2
+    '#ffb142',    // Color 3
+    '#ff5252',   // Color 4
+    '#706fd3',   // Color 5
+    '#ffda79'
 ];
 
-function addMessageFully(text, right) {
+function addMessageFully(text, right, index) {
     var d = $('#chatMessageList');
     let formattedText = text.replace(/(Reasoning)/g, '<span class="highlight_fully">$1</span>');
     formattedText = formattedText.replace(/(Combination)/g, '<span class="highlight_fully">$1</span>');
 
+    let colorCurrent = colorsFully[index%6];
+
     if (right)
-        d.append("<div class=\"row message-row\" ><div class='col-md-1'></div><div class='col-md-2'></div><div class='col-md-9 chat-message'>" + formattedText + "</div></div>");
+        d.append("<div class=\"row message-row\"  ><div class='col-md-1'></div><div class='col-md-2'></div><div class='col-md-9 chat-message' style=\"background-color: " + colorCurrent + ";\">" + formattedText + "</div></div>");
     else
-        d.append("<div class=\"row message-row\" ><div class='col-md-9 chat-message'>" + formattedText + "</div><div class='col-md-2'></div><div class='col-md-1'></div></div>");
+        d.append("<div class=\"row message-row\" ><div class='col-md-9 chat-message' style=\"background-color: " + colorCurrent + ";\">" + formattedText + "</div><div class='col-md-2' ></div><div class='col-md-1'></div></div>");
     d.scrollTop(d.prop("scrollHeight"));
 }
 
 document.addEventListener('dataUpdateEvent', function(event){
     if(messagesFully.length <= textFullyIndex)
         return;
-    addMessageFully(messagesFully[textFullyIndex].text, placeFullyMessageRight);
+    addMessageFully(messagesFully[textFullyIndex].text, placeFullyMessageRight, textFullyIndex);
     placeFullyMessageRight = !placeFullyMessageRight;
     textFullyIndex += 1;
 });

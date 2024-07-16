@@ -6,15 +6,14 @@ let placeDynamicMessageRight = true;
 let textDynamicIndex = 0;
 
 
-let bubbleColors = [
-    '#f6e58d',      // Color 1
-    '#7ed6df',     // Color 2
-    '#e056fd',    // Color 3
-    '#686de0',   // Color 4
-    '#c7ecee',   // Color 5
-    '#95afc0'    // Color 6
+let colorsDynamic = [
+    '#34ace0',      // Color 1
+    '#33d9b2',     // Color 2
+    '#ffb142',    // Color 3
+    '#ff5252',   // Color 4
+    '#706fd3',   // Color 5
+    '#ffda79'
 ];
-
 
 const filename = top_dir + "post_process/dialogue.txt";
 fetch(filename)
@@ -25,7 +24,8 @@ fetch(filename)
         lines.forEach((line, index) => {
             if (line.trim()) { // skip empty lines
                 let agent = line.substring(0, 7); // Or use line.slice(0, 6);
-                messagesDynamic.push({ agent: agent, text: line.trim() });
+                let text = line.substring(9).trim(); // Or use line.slice(5).trim();
+                messagesDynamic.push({ agent: agent, text: text.trim() });
             }
         });
     }).then(c => {
@@ -44,22 +44,28 @@ let colors = [
     'black'     // Default color for other text
 ];
 
-function addMessageDynamic(text, right) {
+function addMessageDynamic(text, right, index) {
     var d = $('#chatMessageListDynamic');
     let formattedText = text.replace(/(Reasoning)/g, '<span class="highlight_fully">$1</span>');
     formattedText = formattedText.replace(/(Combination)/g, '<span class="highlight_fully">$1</span>');
 
+    let colorCurrent = colorsFully[index%6];
+
     if (right)
-        d.append("<div class=\"row message-row\" ><div class='col-md-1'></div><div class='col-md-2'></div><div class='col-md-9 chat-message'>" + formattedText + "</div></div>");
+        d.append("<div class=\"row message-row\"  ><div class='col-md-1'></div><div class='col-md-2'></div><div class='col-md-9 chat-message' style=\"background-color: " + colorCurrent + ";\">" + formattedText + "</div></div>");
     else
-        d.append("<div class=\"row message-row\" ><div class='col-md-9 chat-message'>" + formattedText + "</div><div class='col-md-2'></div><div class='col-md-1'></div></div>");
+        d.append("<div class=\"row message-row\" ><div class='col-md-9 chat-message' style=\"background-color: " + colorCurrent + ";\">" + formattedText + "</div><div class='col-md-2' ></div><div class='col-md-1'></div></div>");
+
+
+
     d.scrollTop(d.prop("scrollHeight"));
 }
+
 
 document.addEventListener('dataUpdateEvent', function(event){
     if(messagesDynamic.length <= textFullyIndex)
         return;
-    addMessageDynamic(messagesDynamic[textDynamicIndex].text, placeDynamicMessageRight);
+    addMessageDynamic(messagesDynamic[textDynamicIndex].text, placeDynamicMessageRight,textDynamicIndex);
     placeDynamicMessageRight = !placeDynamicMessageRight;
     textDynamicIndex += 1;
 });

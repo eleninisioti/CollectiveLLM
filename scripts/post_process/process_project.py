@@ -95,14 +95,14 @@ def export_perf(project_dir):
 
 if __name__ == "__main__":
 
-    #project_dir = "results/2024_07_12/num_trials_3_num_tasks_1_num_steps_200_openended_True_encoded_False_num_distractors_6_depth_1_agent_type_llama3_forbid_repeats_False_retry_6_temperature_1_top_p_0.9_num_agents_6_connectivity_fully-connected_visit_duration_5_visit_prob_0.1_70B"
-    #export_perf(project_dir)
+    project_dir = "results/2024_07_13/fully"
+    export_perf(project_dir)
 
     #project_dir = "results/2024_07_13/num_trials_3_num_tasks_1_num_steps_200_openended_True_encoded_False_num_distractors_6_depth_1_agent_type_llama3_forbid_repeats_False_retry_6_temperature_1_top_p_0.9_num_agents_6_connectivity_fully-connected_visit_duration_5_visit_prob_0.1_70B"
 
     #export_messages(project_dir)
 
-    project_dir = "results/2024_07_13/num_trials_3_num_tasks_1_num_steps_200_openended_True_encoded_False_num_distractors_6_depth_1_agent_type_llama3_forbid_repeats_False_retry_6_temperature_1_top_p_0.9_num_agents_6_connectivity_dynamic_visit_duration_5_visit_prob_0.1_70B"
+    #project_dir = "results/2024_07_13/num_trials_3_num_tasks_1_num_steps_200_openended_True_encoded_False_num_distractors_6_depth_1_agent_type_llama3_forbid_repeats_False_retry_6_temperature_1_top_p_0.9_num_agents_6_connectivity_dynamic_visit_duration_5_visit_prob_0.1_70B"
 
-    export_messages(project_dir)
+    #export_messages(project_dir)
 
