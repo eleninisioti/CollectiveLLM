@@ -62,12 +62,11 @@ class Group:
                                          num_agents=self.num_agents,
                                          env=self.envs[agent_idx])
 
-            elif self.agent_type in ["llama3", "llama2"]:
+            elif self.agent_type in ["llama3", "llama2", "ollama"]:
                 new_agent = OllamaAgent(seed=self.seed,
                                         idx=agent_idx,
                                         project_dir=self.project_dir,
                                         trial=self.trial,
-                                        targeted=(not self.openended),
                                         multiagent=(self.num_agents-1),
                                         env=self.envs[agent_idx])
 
@@ -75,12 +74,13 @@ class Group:
 
         self.determine_neighbors()
 
+
     def reset_task(self, task):
         # create environments for all agents
         self.task = task
         for idx, agent in enumerate(self.agents):
             agent.reset_task(task)
-
+            
     def step(self, current_step):
         if self.connectivity == "dynamic" and len(self.agents) > 2:
             # a visit takes place with chosen probability
@@ -92,25 +92,14 @@ class Group:
 
             if not agent.success:
                 # get current environmental state
-                state = agent.env.render(agent.get_neighbor_envs())
 
-                repeat = True
+                action, items = agent.move()
+                message, obs = agent.env.step(current_step, items[0], items[1], agent.env.inventory)
 
-                while repeat:
-                    action, items = agent.move(state)
-                    obs, reward, done, info = agent.env.step(action)
-                    repeat = info["repeat"]
-
-                agent.log_step(step=current_step, obs=state, action=action, repeat=repeat)
+                agent.log_step(step=current_step, obs=obs, action=action, repeat=None)
 
                 # act in the environment
-                agent.past_actions.append(items)
 
-                if done and reward:
-                    agent.success = True
-                    agent.step_solved = current_step
-
-                #agent.log_step(step=current_step, obs=state, action=action)
 
                 group_results.append([self.trial,
                                       self.task,
@@ -119,7 +108,7 @@ class Group:
                                       agent.success,
                                       agent.step_solved,
                                       items,
-                                      len(agent.env.get_inventory())])
+                                      len(agent.env.inventory)])
         return group_results
 
     def wrap_up(self):

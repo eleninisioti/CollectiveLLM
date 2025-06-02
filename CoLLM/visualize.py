@@ -29,6 +29,7 @@ colormap = {
     }
 
 all_colors = [color for colors in colormap.values() for color in colors]
+
 def viz_success(project_dir, n_trials, task_length):
     save_dir = project_dir + "/visuals"
     if not os.path.exists(save_dir):

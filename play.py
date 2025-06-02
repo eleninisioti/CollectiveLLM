@@ -4,20 +4,16 @@ It can be run directly by calling "python play.py (args)" or by calling the meth
 import sys
 import os
 
-sys.path.append(os.getcwd())
-sys.path.append("LittleAlchemy2Text/env/wordcraft")
-sys.path.append("LittleAlchemy2Text")
 
 import argparse
 import pandas as pd
 from datetime import datetime
 import yaml
 import time
-import gym
 from CoLLM.group import Group
-import env.little_alchemy_2_text.openended.env
-import env.little_alchemy_2_text.targeted.env
+
 from CoLLM.visualize import viz_project
+from la2.env import AlchemyEnv
 
 # ----- general utils -----
 def parse_flags():
@@ -141,19 +137,7 @@ def setup_dir(args):
 
 
 def create_env(env_config):
-    if env_config["openended"]:
-
-        env = gym.make("LittleAlchemy2TextOpen-v0",
-                       max_mix_steps=env_config["steps"],
-                       encoded=env_config["encoded"])
-
-    else:
-
-        env = gym.make("LittleAlchemy2TextTargeted-v0",
-                       max_mix_steps=env_config["steps"],
-                       num_distractors=env_config["distractors"],
-                       max_depth=env_config["depth"],
-                       encoded=env_config["encoded"])
+    env = AlchemyEnv()
     return env
 
 

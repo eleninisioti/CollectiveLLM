@@ -5,11 +5,8 @@ import numpy as np
 import random
 import pickle
 from CoLLM.utils import find_nth
-import gym
-import sys
 import os
-sys.path.append("LittleAlchemy2Text/env/wordcraft")
-sys.path.append("LittleAlchemy2Text")
+
 
 class Agent:
     def __init__(self, idx, project_dir, trial, env):
@@ -25,8 +22,11 @@ class Agent:
         self.idx = idx
         self.project_dir = project_dir
         self.trial = trial
-
         self.env = env
+        
+        
+    def render(self):
+        pass
 
 
     def reset_task(self, task):
@@ -37,7 +37,6 @@ class Agent:
             env (gym environment): environment for current task
         """
 
-        self.env.reset(seed=task)
 
         self.task = task
         self.rewards = 0
@@ -46,7 +45,6 @@ class Agent:
         self.visiting = False
         self.current_log = self.project_dir + "/logs/trial_" + str(self.trial) + "/task_" + str(self.task) + "/agent_" + str(self.idx)
         self.prev_group = []
-        self.past_actions = []
         self.copy_times = {}
         self.invalid_attempts = 0
         self.step_solved = None
@@ -57,19 +55,19 @@ class Agent:
 
 
 
-    def move(self, state=""):
+    def move(self):
 
-        action, output = self._get_action(state)
+        action, output = self._get_action()
         counter = 0
         if self.forbid_repeats:
             already_played = action in self.past_actions
 
             while already_played and counter < 20:
-                action = self._get_action()
+                action, output = self._get_action()
                 already_played = action in self.past_actions
                 counter += 1
 
-        #output = "Combination: '" + action[0] + "' and '" + action[1] + "'"
+        output = "Combination: '" + action[0] + "' and '" + action[1] + "'"
 
         return output, action
 

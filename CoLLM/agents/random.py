@@ -18,14 +18,14 @@ class RandomAgent(Agent):
         np.random.seed(seed)
         super().__init__(**kwargs)
 
-    def _get_action(self, state):
-        inventory = self.env.get_inventory()
+    def _get_action(self):
+        inventory = self.env.inventory
 
         random_loc = np.random.randint(0, len(inventory))
         random_word1 = inventory[random_loc]
         random_loc = np.random.randint(0, len(inventory))
         random_word2 = inventory[random_loc]
 
-        action = random_word1, random_word2
+        action = (random_word1, random_word2)
 
-        return action
+        return action, ""

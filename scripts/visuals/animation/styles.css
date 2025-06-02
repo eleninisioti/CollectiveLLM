@@ -69,7 +69,7 @@ canvas {
 
 .chat-message-list {
     width: 100%;
-    height: 50%;
+    height: 100%;
     flex-grow: 1;
     /* Allow chat-message-list to take the remaining space */
     border-radius: 10px;
