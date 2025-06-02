@@ -22,12 +22,12 @@ your task better.
 For each task you will play multiple rounds and, at each round, I will give you the following information in the INPUT:
 
 Inventory: this is a list of the available items that you can combine in pairs to make new items
-Task valid combinations (do not repeat combinations here): a list of the combinations you tried in previous rounds of this task that gave you a new item. ou should not repeat combinations in this list
-Task invalid combinations (do not repeat combinations here): a list of the combinations you made in previous rounds of this task that did not give you a new item. ou should not repeat combinations in this list
+Task valid combinations: a list of the combinations you tried in previous rounds of this task that gave you a new item. ou should not repeat combinations in this list
+Task invalid combinations: a list of the combinations you made in previous rounds of this task that did not give you a new item. ou should not repeat combinations in this list
 Other players valid: a list of the combinations that the other player tried in previous rounds of this task that gave them a new item
-Other players invalid (do not repeat combinations here): a list of the combinations that the other player tried in previous rounds of this task that did not give them a new item. You should not repeat combinations in this list
+Other players invalid: a list of the combinations that the other player tried in previous rounds of this task that did not give them a new item. You should not repeat combinations in this list
 Other players valid combinations:
-Other players invalid combinations (do not repeat combinations here):
+Other players invalid combinations:
 
 Your response should contain only the following information:
 

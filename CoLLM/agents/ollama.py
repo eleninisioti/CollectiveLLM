@@ -49,8 +49,13 @@ class OllamaAgent(Agent):
         
 
         # Convert inventory (a list of strings) into a comma-separated string
-        inventory_str = ", ".join(self.env.inventory)
-        state = self.intro + inventory_str
+        inventory_str = "\n Inventory: " + ", ".join(self.env.inventory)
+        invalid_attempts_str = ", ".join([f"'{item1}' and '{item2}'" for item1, item2 in self.env.invalid_attempts])
+        valid_attempts_str = ", ".join([f"'{item1}' and '{item2}' -> '{item3}'" for item1, item2, item3 in self.env.valid_attempts])
+        current_obs = inventory_str + "\n Task valid combinations: " + valid_attempts_str + "\n Task invalid combinations: " + invalid_attempts_str
+        state = self.intro + current_obs
+
+        print(current_obs)
 
         response = ollama.chat(model='llama3.3', messages=[
             {
@@ -60,5 +65,9 @@ class OllamaAgent(Agent):
         ])
         response = response['message']['content']
         action = self.parse_input(response)
+        
+        print(response)
+        if not len(action[0]) and not len(action[1]):
+            self.invalid_actions += 1
 
         return action, response

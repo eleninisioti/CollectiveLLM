@@ -9,6 +9,9 @@ class AlchemyEnv:
     def __init__(self):
         self.inventory = ["air", "water", "fire", "earth"]
         self.invalid_attempts = []
+        self.valid_attempts = []
+        self.repeats_valid = 0
+        self.repeats_invalid = 0
         
     
     def load_recipe2entity(self, key):
@@ -40,12 +43,17 @@ class AlchemyEnv:
         recipe_key = tuple(sorted([item1, item2]))
         result = self.load_recipe2entity(recipe_key)
 
-        if result is None:
-            self.invalid_attempts.append(recipe_key)
+        if not len(result):
+            if recipe_key not in self.invalid_attempts:
+                self.invalid_attempts.append(recipe_key)
+            else:
+                self.repeats_invalid += 1
             
             return f"{item1} + {item2}: invalid combination", None
         elif result in inventory:
+            self.repeats_valid += 1
             return f"{item1} + {item2} = {result}: {result} already in inventory", result
         else:
             self.inventory.append(result)
+            self.valid_attempts.append(recipe_key + (result,))
             return f"{item1} + {item2} = {result}: {result} is a new item!", result

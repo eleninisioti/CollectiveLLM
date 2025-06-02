@@ -24,6 +24,8 @@ class Agent:
         self.trial = trial
         self.env = env
         
+        self.invalid_actions = 0
+        
         
     def render(self):
         pass
@@ -155,16 +157,16 @@ class Agent:
             f.write("Repetiton" + str(repeat))
 
 
-    def update_log(self, utterance):
-        repeat_valid, repeat_invalid, double_action, repeated_valid_other, repeated_invalid_other = self.analyse_action(
-            utterance)
-        self.count_repeats_valid += int(repeat_valid)
-        self.count_repeats_invalid += int(repeat_invalid)
-        self.count_double_action += int(double_action)
-        self.count_repeats_valid_other += int(repeated_valid_other)
-        self.count_repeats_invalid_other += int(repeated_invalid_other)
 
     def wrapup_task(self):
         # save current task general info
         with open(self.current_log + "/game.txt", "a") as f:
             f.write("Task " + str(self.task) + " ended with success " + str(self.success) + " at step " + str(self.step_solved))
+            
+        with open(self.current_log + "/game_info.pkl", "w") as f:
+            pickle.dump({"inventory": self.env.inventory, 
+                         "valid_attempts": self.env.valid_attempts,
+                        "repeats_valid": self.env.repeats_valid,
+                        "invalid_attempts": self.env.invalid_attempts,
+                         "repeats_invalid": self.env.repeats_invalid,
+                         })

@@ -105,8 +105,10 @@ class Group:
                                       self.task,
                                       agent.idx,
                                       current_step,
-                                      agent.success,
-                                      agent.step_solved,
+                                      agent.env.repeats_valid,
+                                      agent.env.repeats_invalid,
+                                      len(agent.env.invalid_attempts),
+                                      agent.invalid_actions,
                                       items,
                                       len(agent.env.inventory)])
         return group_results

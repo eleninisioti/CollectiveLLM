@@ -18,8 +18,8 @@ You should not attempt the same combination twice in a task.
 For each task you will play multiple rounds and, at each round, I will give you the following information in the INPUT:
 
 Inventory: this is a list of the available items that you can combine in pairs to make new items
-Task valid combinations (do not repeat combinations here): a list of the combinations you tried in previous rounds of this task that gave you a new item. ou should not repeat combinations in this list
-Task invalid combinations (do not repeat combinations here): a list of the combinations you made in previous rounds of this task that did not give you a new item. ou should not repeat combinations in this list
+Task valid combinations: a list of the combinations you tried in previous rounds of this task that gave you a new item. ou should not repeat combinations in this list
+Task invalid combinations: a list of the combinations you made in previous rounds of this task that did not give you a new item. ou should not repeat combinations in this list
 
 Your response should contain only the following information:
 
@@ -30,8 +30,8 @@ Here is a simple example:
 
 <human> INPUT:
 Inventory: 'science', 'ocean', 'dinosaur'
-Task valid combinations (do not repeat combinations here):
-Task invalid combinations (do not repeat combinations here):
+Task valid combinations:
+Task invalid combinations:
 
 <bot> RESPONSE:
 Reasoning: a scientist that studies dinosaurs is a paleontologist, which is a new item
@@ -40,8 +40,8 @@ Combination: 'science' and 'dinosaur'
 <human> Here is an example that shows how that you can sometimes combine an element with itself:
 
 Inventory: 'wall', 'earth', 'mud', 'angel'
-Task valid combinations (do not repeat combinations here):
-Task invalid combinations (do not repeat combinations here):
+Task valid combinations:
+Task invalid combinations:
 
 <bot> RESPONSE:
 Reasoning: I can combine an element with itself so I will create a house by combining two walls
@@ -51,8 +51,8 @@ Combination: 'wall' and 'wall'
 
 <human> INPUT:
 Inventory: 'human', 'metal', 'fire', 'life', 'robot'
-Task valid combinations (do not repeat combinations here): 'metal' and 'life -> 'robot'
-Task invalid combinations (do not repeat combinations here):
+Task valid combinations: 'metal' and 'life -> 'robot'
+Task invalid combinations :
 
 <bot> RESPONSE:
 Reasoning: When I started this task 'robot' was not in my inventory. But I combined 'metal' and 'life' which gave the item 'robot'. This means that I cannot combine "metal" and "life" again. Now I can combine 'robot' and 'human' to make a 'cyborg' because a cyborg is a human with robotic parts.
@@ -62,8 +62,8 @@ Combination: 'robot' and 'human'
 
 <human> INPUT:
 Inventory: 'human', 'metal', 'fire', 'life'
-Task valid combinations (do not repeat combinations here):
-Task invalid combinations (do not repeat combinations here): 'fire' and 'life'
+Task valid combinations:
+Task invalid combinations: 'fire' and 'life'
 
 <bot> RESPONSE:
 Reasoning: In a previous round of this task I tried to combine 'fire' and 'life' and didn't get a new item. So I should not try this combo again.  I can combine 'metal' and 'life' to make a 'robot' because a robot is made of metal and behaves like a living organism.
@@ -74,8 +74,8 @@ Combination: 'metal' and 'life'
 
 <human> INPUT:
 Inventory: 'human', 'metal', 'fire', 'life', 'robot'
-Task valid combinations (do not repeat combinations here): 'metal' and 'life -> 'robot'
-Task invalid combinations (do not repeat combinations here):
+Task valid combinations: 'metal' and 'life -> 'robot'
+Task invalid combinations:
 You have already combined 'metal' and 'life', so you cannot repeat it. Try another one.
 
 <bot> RESPONSE:

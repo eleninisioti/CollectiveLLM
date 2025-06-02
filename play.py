@@ -179,9 +179,11 @@ def play(args):
                                         "task",
                                         "agent",
                                         "steps",
-                                        "success",
-                                        "success_step",
-                                        "action",
+                                        "repeats_valid",
+                                        "repeats_invalid",
+                                        "invalid_attempts",
+                                        "invalid_actions",
+                                        "items",
                                         "inventory_length"])
 
         start_time = time.time()
