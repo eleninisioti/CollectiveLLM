@@ -9,7 +9,7 @@ def run_single(agent_type):
     args = vars(parse_flags())
     args["num_trials"] = 1
     args["results_dir"] = "results"
-    args["num_steps"] = 10
+    args["num_steps"] = 200
     args["agent_type"] = agent_type
     args["openended"] = True
     args["num_tasks"] = 1
@@ -24,5 +24,6 @@ def run_single(agent_type):
 if __name__ == "__main__":
 
     #run_llama3_group(connectivity="fully-connected")
-
     run_single(agent_type="ollama")
+
+    #run_single(agent_type="ollama_memory")

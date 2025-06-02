@@ -49,7 +49,7 @@ class AlchemyEnv:
             else:
                 self.repeats_invalid += 1
             
-            return f"{item1} + {item2}: invalid combination", None
+            return f"{item1} + {item2}: invalid combination", result
         elif result in inventory:
             self.repeats_valid += 1
             return f"{item1} + {item2} = {result}: {result} already in inventory", result

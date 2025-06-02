@@ -69,6 +69,13 @@ class Group:
                                         trial=self.trial,
                                         multiagent=(self.num_agents-1),
                                         env=self.envs[agent_idx])
+            elif "memory" in self.agent_type:
+                new_agent = OllamaAgentWithMemory(seed=self.seed,
+                                        idx=agent_idx,
+                                        project_dir=self.project_dir,
+                                        trial=self.trial,
+                                        multiagent=(self.num_agents-1),
+                                        env=self.envs[agent_idx])
 
             self.agents.append(new_agent)
 
@@ -96,6 +103,9 @@ class Group:
                 action, items = agent.move()
                 message, obs = agent.env.step(current_step, items[0], items[1], agent.env.inventory)
 
+                if agent.has_memory:
+                    agent.memory.append((items[0], items[1], message, current_step))
+                
                 agent.log_step(step=current_step, obs=obs, action=action, repeat=None)
 
                 # act in the environment

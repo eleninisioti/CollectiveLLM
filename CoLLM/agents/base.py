@@ -23,6 +23,7 @@ class Agent:
         self.project_dir = project_dir
         self.trial = trial
         self.env = env
+        self.has_memory = False
         
         self.invalid_actions = 0
         
@@ -163,10 +164,10 @@ class Agent:
         with open(self.current_log + "/game.txt", "a") as f:
             f.write("Task " + str(self.task) + " ended with success " + str(self.success) + " at step " + str(self.step_solved))
             
-        with open(self.current_log + "/game_info.pkl", "w") as f:
+        with open(self.current_log + "/game_info.pkl", "wb") as f:
             pickle.dump({"inventory": self.env.inventory, 
                          "valid_attempts": self.env.valid_attempts,
                         "repeats_valid": self.env.repeats_valid,
                         "invalid_attempts": self.env.invalid_attempts,
                          "repeats_invalid": self.env.repeats_invalid,
-                         })
+                         }, f)
