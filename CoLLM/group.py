@@ -7,7 +7,7 @@ import copy
 class Group:
 
     def __init__(self, seed, num_agents, agent_type, connectivity, visit_prob, visit_duration, openended, project_dir, trial,
-                 forbid_repeats, temperature, top_p, env):
+                 forbid_repeats, temperature, top_p, env, memory_type, num_steps):
         self.num_agents = num_agents
         self.connectivity = connectivity
         self.visit_prob = visit_prob
@@ -23,7 +23,8 @@ class Group:
         self.temperature = temperature
         self.top_p = top_p
         self.seed = seed
-
+        self.memory_type = memory_type  
+        self.num_steps = num_steps
         self.envs = [copy.deepcopy(env) for _ in range(self.num_agents)]
 
         self._init_agents()
@@ -75,7 +76,9 @@ class Group:
                                         project_dir=self.project_dir,
                                         trial=self.trial,
                                         multiagent=(self.num_agents-1),
-                                        env=self.envs[agent_idx])
+                                        env=self.envs[agent_idx],
+                                        memory_type=self.memory_type,
+                                        num_steps=self.num_steps)
 
             self.agents.append(new_agent)
 
@@ -104,7 +107,7 @@ class Group:
                 message, obs = agent.env.step(current_step, items[0], items[1], agent.env.inventory)
 
                 if agent.has_memory:
-                    agent.memory.append((items[0], items[1], message, current_step))
+                    agent.memory.append((items[0], items[1], obs, current_step))
                 
                 agent.log_step(step=current_step, obs=obs, action=action, repeat=None)
 

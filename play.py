@@ -110,6 +110,11 @@ def parse_flags():
                         default=0.1)
 
     # ----------------------------------------------------------------------------
+    # ----- configure memory mechanism -----
+    parser.add_argument('--memory_type',
+                    type=str,
+                    help='Memory type',
+                    default="recency")
 
     args = parser.parse_args()
     return args
@@ -122,8 +127,8 @@ def setup_dir(args):
         args (dict): input flags configuring the project
     """
     top_dir = args["results_dir"]
-    project_dir = [key + "_" + str(el) for key, el in args.items() if key != "trial" and key != "results_dir"]
-    project_dir = top_dir + "/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir) + "_70B"
+    project_dir = [key[:3] + "_" + str(el) for key, el in args.items() if key != "trial" and key != "results_dir"]
+    project_dir = top_dir + "/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir)
 
     if not os.path.exists(project_dir + "/data"):
         os.makedirs(project_dir + "/data", exist_ok=True)
@@ -172,7 +177,9 @@ def play(args):
                       forbid_repeats=args["forbid_repeats"],
                       temperature=args["temperature"],
                       top_p=args["top_p"],
-                      env=env)
+                      env=env,
+                      memory_type=args["memory_type"],
+                      num_steps=args["num_steps"])
 
         # will save experiment results here
         results = pd.DataFrame(columns=["trial",
