@@ -11,6 +11,8 @@ from datetime import datetime
 import yaml
 import time
 from CoLLM.group import Group
+import pickle
+import copy
 
 from CoLLM.visualize import viz_project
 from la2.env import AlchemyEnv
@@ -115,6 +117,16 @@ def parse_flags():
                     type=str,
                     help='Memory type',
                     default="recency")
+    
+    parser.add_argument('--active_memory_capacity',
+                        type=int,
+                        help='Active memory capacity',
+                        default=10)
+    
+    parser.add_argument('--prob_artifact_disappear',
+                        type=float,
+                        help='Probability that an artifact disappears',
+                        default=0.0)
 
     args = parser.parse_args()
     return args
@@ -128,7 +140,7 @@ def setup_dir(args):
     """
     top_dir = args["results_dir"]
     project_dir = [key[:3] + "_" + str(el) for key, el in args.items() if key != "trial" and key != "results_dir"]
-    project_dir = top_dir + "/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir)
+    project_dir = top_dir + "/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir) 
 
     if not os.path.exists(project_dir + "/data"):
         os.makedirs(project_dir + "/data", exist_ok=True)
@@ -179,7 +191,9 @@ def play(args):
                       top_p=args["top_p"],
                       env=env,
                       memory_type=args["memory_type"],
-                      num_steps=args["num_steps"])
+                      num_steps=args["num_steps"],
+                      prob_artifact_disappear=args["prob_artifact_disappear"],
+                      active_memory_capacity=args["active_memory_capacity"])
 
         # will save experiment results here
         results = pd.DataFrame(columns=["trial",
@@ -190,10 +204,10 @@ def play(args):
                                         "repeats_invalid",
                                         "invalid_attempts",
                                         "invalid_actions",
-                                        "items",
                                         "inventory_length"])
 
         start_time = time.time()
+        log_info = []
         for task in range(args["num_tasks"]):
 
             # creates a new environment for each agen
@@ -201,20 +215,40 @@ def play(args):
 
             # step environment until the task is solved or maximum number of steps reached
             for step in range(args["num_steps"]):
-                group_results = group.step(step)
+                group_results, current_log_info = group.step(step)
+                log_info.append(copy.deepcopy(current_log_info))
 
                 for agent_results in group_results:
                     results.loc[len(results)] = agent_results
+                    
+                print("length of results", len(results))
 
                 if step % 50 == 0:
                     # save intermediate results
                     with open(project_dir + "/data/results_" + str(trial) + ".pkl", "wb") as f:
                         results.to_pickle(f)
+                        
+                    
+                    with open(project_dir + "/data/log_info_" + str(trial) + ".pkl", "wb") as f:
+                        pickle.dump(log_info, f)
+                        
+
 
             group.wrap_up()
 
             with open(project_dir + "/data/results_" + str(trial) + ".pkl", "wb") as f:
                 results.to_pickle(f)
+
+            with open(project_dir + "/data/log_info_" + str(trial) + ".pkl", "wb") as f:
+                pickle.dump(log_info, f)
+                
+            attempts_info = {"valid": {}, "invalid": {}}
+            for agent in group.agents:
+                attempts_info["valid"][agent.idx] = agent.env.valid_attempts
+                attempts_info["invalid"][agent.idx] = agent.env.invalid_attempts
+                
+            with open(project_dir + "/data/attempts_info_" + str(trial) + ".pkl", "wb") as f:
+                pickle.dump(attempts_info, f)
 
 
     viz_project(project_dir)

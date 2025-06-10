@@ -26,6 +26,9 @@ class Agent:
         self.has_memory = False
         
         self.invalid_actions = 0
+        self.rank = None
+        self.memory = []
+        self.active_memory = []
         
         
     def render(self):

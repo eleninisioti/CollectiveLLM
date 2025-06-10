@@ -3,14 +3,17 @@
 
 import ollama
 from CoLLM.agents.base import Agent
+import re
+import random
 
 class OllamaAgentWithMemory(Agent):
 
-    def __init__(self, seed, multiagent,  num_steps, forbid_repeats=False, memory_type="recency", **kwargs):
+    def __init__(self, seed, multiagent,  num_steps, forbid_repeats=False, memory_type="recency", active_memory_capacity=10, **kwargs):
         self.forbid_repeats = forbid_repeats
         self.seed = seed
         self.memory_type = memory_type
         self.num_steps = num_steps
+        self.active_memory_capacity = active_memory_capacity
         # the form is item1, item2, output, timestep
 
         self.memory = []
@@ -52,6 +55,45 @@ class OllamaAgentWithMemory(Agent):
         second_word = actions[(end_first + 7): end_second]
         return first_word, second_word
     
+    
+    def rank_memory_relevance(self, memory, info):
+        instructions = "You are currently playing a game. In this game I give you an inventory of items that you need to combine in pairs to make new items."
+        instructions += "I will give you some information that has the form item1 and item2 -> output), where item1 and item2 can be combined to make output. "
+        instructions += "If output is 'Nothing', this means that this combination does not give a new item. "
+        instructions += "I want you to give me a value between 0 and 1 that characterizes how relevant this information is based on your current inventory"
+        instructions += "An information is relevant if it is likely to help play the gema. For example, it can help you produce an item that you don't have or avoid attempting an item that is invalid or that you have already tried."
+        
+        if memory[2]:  # result exists and is not None/empty
+            memory_str = f"'{memory[0]}' and '{memory[1]}' -> '{memory[2]}'"
+        else:
+            memory_str = f"'{memory[0]}' and '{memory[1]}' -> Nothing "
+        content = instructions + "\n Here is the inventory: " + info + "\n Here is the information: " + memory_str  + "\n The relevance is (just give me a number between 0 and 1): "
+        print(memory_str)
+        response = ollama.chat(model='llama3.3', messages=[
+            {
+                'role': 'user',
+                'content': content,
+            },
+        ])
+        relevance = response['message']['content']
+        print(relevance)
+        # Extract the last number from the string
+        try:
+            # Find all numbers (including decimals) in the string
+            numbers = re.findall(r"[-+]?\d*\.\d+|\d+", relevance)
+            if numbers:
+                relevance_value = float(numbers[-1])
+            else:
+                raise ValueError("No number found in response")
+        except Exception as e:
+            print(f"Error extracting relevance: {e}, response was: {relevance}")
+            relevance_value = 0.0
+        print(info, memory, relevance_value)
+        relevance = relevance_value
+        return relevance    
+
+            
+    
     def rank_memory(self, memory, info):
         # relevance, recency, importance
         
@@ -60,58 +102,53 @@ class OllamaAgentWithMemory(Agent):
             print(recency, memory[3])
             rank = recency
         elif self.memory_type == "relevance":
+            relevance = self.rank_memory_relevance(memory, info)
+            rank = relevance
           
-            instructions = "You are currently playing a game. In this game I give you an inventory of items that you need to combine in pairs to make new items."
-            instructions += "I will give you some information that has the form (item1, item2, output), where item1 and item2 can be combined to make output. "
-            instructions += "If output is empty, this means that this combination is invalid, so it is not useful to you. "
-            instructions += "Also if the output is already in your inventory, it is not useful to you, as you already have it. "
-            instructions += "I want you to give me a value between 0 and 1 that characterizes how relevant this information is based on your current invenotry"
-            instructions += "An information is relevant if it is likely to help you produce an item that you don't have or avoid attempting an item that is invalid or that you have already tried"
-            
-            
-            content = instructions + "\n Here is the inventory: " + info + "\n Here is the information: " + memory  + "\n The relevance is: "
-            response = ollama.chat(model='llama3.3', messages=[
-                {
-                    'role': 'user',
-                    'content': content,
-                },
-            ])
-            relevance = response['message']['content']
-            rank = float(relevance)
-        
+        elif self.memory_type == "mix":
+            recency = memory[3]/self.num_steps
+            relevance = self.rank_memory_relevance(memory, info)
+            rank = recency + relevance
+                        
         return rank
         
         
         
     def fetch_memory(self, info):
         # we check if the info is in the memory
-        max_memories = 10
         
-        if len(self.memory) > max_memories:
-            ranks = []
-            for memory in self.memory:
-                
-                rank = self.rank_memory(memory, info)
-                ranks.append(rank)
+        if len(self.memory) > self.active_memory_capacity:
 
-            # Pair each memory with its rank
-            memory_rank_pairs = list(zip(self.memory, ranks))
-            # Sort by rank descending (assuming higher rank is better)
-            memory_rank_pairs.sort(key=lambda x: x[1], reverse=True)
-            # Take the top max_memories
-            top_memories = memory_rank_pairs[:max_memories]
-            # Extract just the memory part
-            current_memory = [mem for mem, _ in top_memories]
+        
+            if self.memory_type == "random":
+                active_memory =random.choices(self.memory, k=self.active_memory_capacity)
+
+            else:
+        
+                ranks = []
+                for memory in self.memory:
+                    
+                    rank = self.rank_memory(memory, info)
+                    ranks.append(rank)
+
+                # Pair each memory with its rank
+                memory_rank_pairs = list(zip(self.memory, ranks))
+                # Sort by rank descending (assuming higher rank is better)
+                memory_rank_pairs.sort(key=lambda x: x[1], reverse=True)
+                # Take the top max_memories
+                top_memories = memory_rank_pairs[:self.active_memory_capacity]
+                # Extract just the memory part
+                active_memory = [mem for mem, _ in top_memories]
+                self.rank = ranks
         else:
-            current_memory = self.memory
+            active_memory = self.memory
             
         
-            
         memory_str = "Past valid combinations:\n"
         valid_combos = []
         invalid_combos = []
 
-        for mem in current_memory:
+        for mem in active_memory:
             # Assuming mem is a tuple like (item1, item2, result)
             if  mem[2]:  # result exists and is not None/empty
                 valid_combos.append(f"'{mem[0]}' and '{mem[1]}' -> '{mem[2]}'")
@@ -121,6 +158,8 @@ class OllamaAgentWithMemory(Agent):
         memory_str += "\n".join(valid_combos)
         memory_str += "\nPast invalid combinations:\n"
         memory_str += "\n".join(invalid_combos)
+        
+        self.active_memory = active_memory
 
         return memory_str
     
@@ -130,12 +169,12 @@ class OllamaAgentWithMemory(Agent):
         
 
         # Convert inventory (a list of strings) into a comma-separated string
-        inventory_str = "\n Inventory: " + ", ".join(self.env.inventory)
-        
-        
+        inventory_str = "\n Inventory: " + ", ".join(self.env.inventory)   
         
         current_memory = self.fetch_memory(inventory_str)
         state = self.intro + inventory_str + current_memory
+        
+        print(inventory_str)
 
         print(current_memory)
 

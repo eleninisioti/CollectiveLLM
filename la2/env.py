@@ -42,18 +42,42 @@ class AlchemyEnv:
 
         recipe_key = tuple(sorted([item1, item2]))
         result = self.load_recipe2entity(recipe_key)
+        
+        print(recipe_key)
+        
+        # Convert recipe_key set to both possible permutations
+        recipe_list = list(recipe_key)
+        recipe_perm1 = (recipe_list[0], recipe_list[1])
+        recipe_perm2 = (recipe_list[1], recipe_list[0])
+        
+        if recipe_perm1 in self.valid_attempts or recipe_perm2 in self.valid_attempts:
+            print(recipe_key, "valid", step)
+            self.repeats_valid += 1
+        if recipe_perm1 in self.invalid_attempts or recipe_perm2 in self.invalid_attempts:
+            print(recipe_key, "invalid", step)
+
+            self.repeats_invalid += 1
+
 
         if not len(result):
             if recipe_key not in self.invalid_attempts:
-                self.invalid_attempts.append(recipe_key)
-            else:
-                self.repeats_invalid += 1
-            
+                self.invalid_attempts.append(recipe_key)    
+                
+        else:
+            if recipe_key not in self.valid_attempts:
+                self.valid_attempts.append(recipe_key)
+                
+        if not len(result):
             return f"{item1} + {item2}: invalid combination", result
         elif result in inventory:
-            self.repeats_valid += 1
             return f"{item1} + {item2} = {result}: {result} already in inventory", result
         else:
             self.inventory.append(result)
-            self.valid_attempts.append(recipe_key + (result,))
             return f"{item1} + {item2} = {result}: {result} is a new item!", result
+        
+
+            
+            
+            
+            
+            

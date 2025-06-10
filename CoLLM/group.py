@@ -7,7 +7,7 @@ import copy
 class Group:
 
     def __init__(self, seed, num_agents, agent_type, connectivity, visit_prob, visit_duration, openended, project_dir, trial,
-                 forbid_repeats, temperature, top_p, env, memory_type, num_steps):
+                 forbid_repeats, temperature, top_p, env, memory_type, num_steps, active_memory_capacity=10, prob_artifact_disappear=0.2):
         self.num_agents = num_agents
         self.connectivity = connectivity
         self.visit_prob = visit_prob
@@ -26,6 +26,8 @@ class Group:
         self.memory_type = memory_type  
         self.num_steps = num_steps
         self.envs = [copy.deepcopy(env) for _ in range(self.num_agents)]
+        self.prob_artifact_disappear = prob_artifact_disappear
+        self.active_memory_capacity = active_memory_capacity
 
         self._init_agents()
 
@@ -78,6 +80,7 @@ class Group:
                                         multiagent=(self.num_agents-1),
                                         env=self.envs[agent_idx],
                                         memory_type=self.memory_type,
+                                        active_memory_capacity=self.active_memory_capacity,
                                         num_steps=self.num_steps)
 
             self.agents.append(new_agent)
@@ -97,6 +100,14 @@ class Group:
             self.visit(current_step)
 
         group_results = []
+        log_info = {"inventory":{"agent_" + str(el): [] for el in range(len(self.agents))},
+                    "memory": {"agent_" + str(el): [] for el in range(len(self.agents))},
+                    "active_memory": {"agent_" + str(el): [] for el in range(len(self.agents))},
+                    "actions": {"agent_" + str(el): [] for el in range(len(self.agents))},
+                    "rank": {"agent_" + str(el): [] for el in range(len(self.agents))},
+                    "valid_attempts": {"agent_" + str(el): [] for el in range(len(self.agents))},
+                    "invalid_attempts": {"agent_" + str(el): [] for el in range(len(self.agents))}
+                    }
 
         for agent in self.agents:
 
@@ -110,9 +121,23 @@ class Group:
                     agent.memory.append((items[0], items[1], obs, current_step))
                 
                 agent.log_step(step=current_step, obs=obs, action=action, repeat=None)
+                
 
-                # act in the environment
-
+                # artifact may disappear from an agent's inventory
+                if random.uniform(0, 1) < self.prob_artifact_disappear:
+                    # pick a random artifact from the inventory
+                    if len(agent.env.inventory) > 0:
+                        artifact = random.choice(agent.env.inventory)
+                        agent.env.inventory.remove(artifact)
+                    
+                log_info["inventory"]["agent_" + str(agent.idx)] =  agent.env.inventory
+                log_info["memory"]["agent_" + str(agent.idx)] = agent.memory
+                log_info["active_memory"]["agent_" + str(agent.idx)] = agent.active_memory
+                log_info["actions"]["agent_" + str(agent.idx)] = items
+                log_info["rank"]["agent_" + str(agent.idx)] = agent.rank
+                log_info["valid_attempts"]["agent_" + str(agent.idx)] = agent.env.valid_attempts
+                log_info["invalid_attempts"]["agent_" + str(agent.idx)] = agent.env.invalid_attempts    
+                
 
                 group_results.append([self.trial,
                                       self.task,
@@ -122,9 +147,8 @@ class Group:
                                       agent.env.repeats_invalid,
                                       len(agent.env.invalid_attempts),
                                       agent.invalid_actions,
-                                      items,
                                       len(agent.env.inventory)])
-        return group_results
+        return group_results, log_info
 
     def wrap_up(self):
         for agent in self.agents:
