@@ -96,8 +96,8 @@ def analyse_play(trial_data):
                 
     
     
-    metrics = {"chose_in_active": in_active/len(in_active_keep),
-               "not_in_memory": in_memory/len(in_active_keep)}
+    metrics = {"chose_in_active": in_active/(len(in_active_keep)+1),
+               "not_in_memory": in_memory/(len(in_active_keep)+1)}
 
     return metrics
 
@@ -173,15 +173,15 @@ def viz_metrics(project_dir, save_dir):
         #with open(project_dir + "/data/attempts_info_" + str(trial) + ".pkl", "rb") as f:
         #    attempts_data  = pickle.load(f)
         trial_metrics = analyse_memory(trial_data)
-        #trial_metrics_play = analyse_play(trial_data)
+        trial_metrics_play = analyse_play(trial_data)
 
         trial_metrics["trial"] = trial
         #trial_metrics_play["trial"] = trial
         metrics_memory.append(trial_metrics)
-        #metrics_play.append(trial_metrics_play)
+        metrics_play.append(trial_metrics_play)
         
     # Convert list of dictionaries to DataFrame
-    data = pd.DataFrame(metrics_memory)
+    data = pd.DataFrame(metrics_play)
     metrics = [col for col in data.columns if col != 'steps']
     #metrics.remove("items")
     

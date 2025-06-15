@@ -153,12 +153,13 @@ class Agent:
         self.count_repeats_invalid_other = 0
 
 
-    def log_step(self, step, obs, action, repeat):
+    def log_step(self, step, inventory, obs, action, memory):
         with open(self.current_log + "/game.txt", "a") as f:
             f.write("Step " + str(step)+ "\n")
+            f.write("Inventory: " + str(inventory) + "\n")
+            f.write("Memory: " + str(inventory) + "\n")
             f.write("Observation: " + obs + "\n")
             f.write("Agent output: \n" + str(action) + "\n \n")
-            f.write("Repetiton" + str(repeat))
 
 
 

@@ -7,7 +7,7 @@ import copy
 class Group:
 
     def __init__(self, seed, num_agents, agent_type, connectivity, visit_prob, visit_duration, openended, project_dir, trial,
-                 forbid_repeats, temperature, top_p, env, memory_type, num_steps, active_memory_capacity=10, prob_artifact_disappear=0.2):
+                 forbid_repeats, temperature, top_p, env, memory_type, num_steps, active_memory_capacity, prob_artifact_disappear):
         self.num_agents = num_agents
         self.connectivity = connectivity
         self.visit_prob = visit_prob
@@ -56,8 +56,8 @@ class Group:
                     env=self.envs[agent_idx])
 
 
-            elif self.agent_type == "chatgpt":
-                new_agent = ChatgptAgent(idx=agent_idx,
+            elif self.agent_type == "openai":
+                new_agent = OpenAIAgent(idx=agent_idx,
                                          project_dir=self.project_dir,
                                          forbid_repeats=False,
                                          trial=self.trial,
@@ -65,15 +65,8 @@ class Group:
                                          num_agents=self.num_agents,
                                          env=self.envs[agent_idx])
 
-            elif self.agent_type in ["llama3", "llama2", "ollama"]:
+            elif self.agent_type == "ollama":
                 new_agent = OllamaAgent(seed=self.seed,
-                                        idx=agent_idx,
-                                        project_dir=self.project_dir,
-                                        trial=self.trial,
-                                        multiagent=(self.num_agents-1),
-                                        env=self.envs[agent_idx])
-            elif "memory" in self.agent_type:
-                new_agent = OllamaAgentWithMemory(seed=self.seed,
                                         idx=agent_idx,
                                         project_dir=self.project_dir,
                                         trial=self.trial,
@@ -81,7 +74,18 @@ class Group:
                                         env=self.envs[agent_idx],
                                         memory_type=self.memory_type,
                                         active_memory_capacity=self.active_memory_capacity,
-                                        num_steps=self.num_steps)
+                                        )
+            elif self.agent_type == "gemini":
+                new_agent = GeminiAgent(seed=self.seed,
+                                        idx=agent_idx,
+                                        project_dir=self.project_dir,
+                                        trial=self.trial,
+                                        multiagent=(self.num_agents-1),
+                                        env=self.envs[agent_idx],
+                                        num_steps=self.num_steps,
+                                        memory_type=self.memory_type,
+                                        active_memory_capacity=self.active_memory_capacity,
+                                        )
 
             self.agents.append(new_agent)
 
@@ -115,12 +119,12 @@ class Group:
                 # get current environmental state
 
                 action, items = agent.move()
-                message, obs = agent.env.step(current_step, items[0], items[1], agent.env.inventory)
+                message, obs = agent.env.step(current_step, items[0], items[1])
 
                 if agent.has_memory:
                     agent.memory.append((items[0], items[1], obs, current_step))
                 
-                agent.log_step(step=current_step, obs=obs, action=action, repeat=None)
+                agent.log_step(step=current_step, obs=obs, action=action, inventory=agent.env.inventory, memory=agent.active_memory)
                 
 
                 # artifact may disappear from an agent's inventory

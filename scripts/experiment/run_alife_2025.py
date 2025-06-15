@@ -23,8 +23,8 @@ def run_single(agent_type):
     print(f"Run finished in {end_time - start_time:.2f} seconds.")
     
     
-def run_single_memory(memory_type, num_steps=400,prob_artifact_disappear=0, memory_capacity=10):
-    agent_type = "ollama_memory"
+def run_single_memory(agent_type, memory_type, num_steps=400,prob_artifact_disappear=0, memory_capacity=10):
+    #agent_type = "ollama_memory"
     args = vars(parse_flags())
     args["num_trials"] = 1
     args["results_dir"] = "results"
@@ -43,14 +43,20 @@ def run_single_memory(memory_type, num_steps=400,prob_artifact_disappear=0, memo
     end_time = time.time()
     print(f"Run finished in {end_time - start_time:.2f} seconds.")
     
+def run_all(agent_type):
+    memory_types = ["random", "relevance", "recency"]
+    prob_artifact_disappear = [0.0, 0.1, 0.2]
+    memory_capacity = [10, 50, 100]
+    num_steps = 400
+    
+    for memory_type in memory_types:
+        for prob_artifact_disappear in prob_artifact_disappear:
+            for memory_capacity in memory_capacity:
+                run_single_memory(agent_type,memory_type, num_steps, prob_artifact_disappear, memory_capacity)
+    
 if __name__ == "__main__":
-    #run_single_memory(memory_type="relevance", prob_artifact_disappear=0, memory_capacity=10)
-    #run_single_memory(memory_type="random", prob_artifact_disappear=0.1, memory_capacity=100, num_steps=400)
-    run_single_memory(  memory_type="random", prob_artifact_disappear=0.0, memory_capacity=100, num_steps=100)
-    run_single_memory(memory_type="random", prob_artifact_disappear=0.0, memory_capacity=10, num_steps=100)
+    run_all(agent_type="gemini")
 
-    #run_single_memory(memory_type="recency", prob_artifact_disappear=0.0, memory_capacity=50, num_steps=400)
-    #run_single_memory(memory_type="relevance", prob_artifact_disappear=0.1, memory_capacity=10)
 
 
 

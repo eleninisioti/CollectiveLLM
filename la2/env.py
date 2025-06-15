@@ -36,9 +36,11 @@ class AlchemyEnv:
             return ""
 
 
-    def step(self, step, item1, item2, inventory):
+    def step(self, step, item1, item2):
         """ Given two items, check that it is
         in the recipe dictionary"""
+        
+        inventory = self.inventory
 
         recipe_key = tuple(sorted([item1, item2]))
         result = self.load_recipe2entity(recipe_key)
@@ -75,6 +77,7 @@ class AlchemyEnv:
             self.inventory.append(result)
             return f"{item1} + {item2} = {result}: {result} is a new item!", result
         
+                
 
             
             

@@ -232,8 +232,6 @@ def play(args):
                     with open(project_dir + "/data/log_info_" + str(trial) + ".pkl", "wb") as f:
                         pickle.dump(log_info, f)
                         
-
-
             group.wrap_up()
 
             with open(project_dir + "/data/results_" + str(trial) + ".pkl", "wb") as f:
@@ -242,15 +240,6 @@ def play(args):
             with open(project_dir + "/data/log_info_" + str(trial) + ".pkl", "wb") as f:
                 pickle.dump(log_info, f)
                 
-            attempts_info = {"valid": {}, "invalid": {}}
-            for agent in group.agents:
-                attempts_info["valid"][agent.idx] = agent.env.valid_attempts
-                attempts_info["invalid"][agent.idx] = agent.env.invalid_attempts
-                
-            with open(project_dir + "/data/attempts_info_" + str(trial) + ".pkl", "wb") as f:
-                pickle.dump(attempts_info, f)
-
-
     viz_project(project_dir)
 
 
