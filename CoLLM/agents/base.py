@@ -9,7 +9,7 @@ import os
 
 
 class Agent:
-    def __init__(self, idx, project_dir, trial, env):
+    def __init__(self, idx, num_steps, project_dir, trial, env, active_memory_capacity=None, memory_type=None):
         """ Constructor of base class.
 
         Params:
@@ -23,11 +23,14 @@ class Agent:
         self.project_dir = project_dir
         self.trial = trial
         self.env = env
-        self.has_memory = False
+        self.num_steps = num_steps
+        self.memory_type=memory_type
+        self.active_memory_capacity=active_memory_capacity
         
+        self.forbid_repeats = False
         self.invalid_actions = 0
         self.rank = None
-        self.memory = []
+        self.memory = {}
         self.active_memory = []
         
         
@@ -62,8 +65,10 @@ class Agent:
 
 
     def move(self):
+        
+        memory = self.fetch_memory(self.env.inventory)
 
-        action, output = self._get_action()
+        action, output = self._get_action(memory)
         counter = 0
         if self.forbid_repeats:
             already_played = action in self.past_actions
@@ -151,6 +156,100 @@ class Agent:
         self.count_double_action = 0
         self.count_repeats_valid_other = 0
         self.count_repeats_invalid_other = 0
+        
+        
+        
+    def rank_memory_relevance(self, memory, info):
+        instructions = "You are currently playing a game. In this game I give you an inventory of items that you need to combine in pairs to make new items."
+        instructions += "I will give you some information that has the form item1 and item2 -> output), where item1 and item2 can be combined to make output. "
+        instructions += "If output is 'Nothing', this means that this combination does not give a new item. "
+        instructions += "I want you to give me a value between 0 and 1 that characterizes how relevant this information is based on your current inventory"
+        instructions += "An information is relevant if it is likely to help play the gema. For example, it can help you produce an item that you don't have or avoid attempting an item that is invalid or that you have already tried."
+        
+        if memory[2]:  # result exists and is not None/empty
+            memory_str = f"'{memory[0]}' and '{memory[1]}' -> '{memory[2]}'"
+        else:
+            memory_str = f"'{memory[0]}' and '{memory[1]}' -> Nothing "
+        content = instructions + "\n Here is the inventory: " + info + "\n Here is the information: " + memory_str  + "\n The relevance is (just give me a number between 0 and 1): "
+        relevance = self.prompt(content)
+        relevance = self.postprocess_relevance(relevance)
+        
+        return relevance    
+
+            
+    
+    def rank_memory(self, memory, info):
+        # relevance, recency, importance
+        
+        if self.memory_type == "recency":
+            recency = memory[3]/self.num_steps
+            rank = recency
+        elif self.memory_type == "relevance":
+            relevance = self.rank_memory_relevance(memory, info)
+            rank = relevance
+          
+        elif self.memory_type == "mix":
+            recency = memory[3]/self.num_steps
+            relevance = self.rank_memory_relevance(memory, info)
+            rank = recency + relevance
+                        
+        return rank
+        
+        
+        
+    def fetch_memory(self, info):
+        
+        if self.memory_type != None:
+            # we check if the info is in the memory
+            
+            if len(self.memory) > self.active_memory_capacity:
+
+            
+                if self.memory_type == "random":
+                    active_memory = random.choices(list(self.memory.keys()), k=self.active_memory_capacity)
+                    active_memory = [list(memory) + [self.memory[memory]] for memory in active_memory]
+
+                else:
+                    ranks = []
+                    for memory_key, memory_value in self.memory.items():
+                        memory = list(memory_key) + [memory_value]
+                        rank = self.rank_memory(memory, info)
+                        ranks.append(rank)
+
+                    # Pair each memory with its rank
+                    memory_rank_pairs = list(zip(self.memory, ranks))
+                    # Sort by rank descending (assuming higher rank is better)
+                    memory_rank_pairs.sort(key=lambda x: x[1], reverse=True)
+                    # Take the top max_memories
+                    top_memories = memory_rank_pairs[:self.active_memory_capacity]
+                    # Extract just the memory part
+                    active_memory = [list(mem) + [self.memory[mem]] for mem, _ in top_memories]
+                    self.rank = ranks
+            else:
+                active_memory = list(self.memory.keys())
+                active_memory = [list(memory) + [self.memory[memory]] for memory in active_memory]
+                
+            
+            memory_str = "Past valid combinations:\n"
+            valid_combos = []
+            invalid_combos = []
+
+            for mem in active_memory:
+                # Assuming mem is a tuple like (item1, item2, result)
+                if  mem[2]:  # result exists and is not None/empty
+                    valid_combos.append(f"'{mem[0]}' and '{mem[1]}' -> '{mem[2]}'")
+                else:
+                    invalid_combos.append(f"'{mem[0]}' and '{mem[1]}'")
+
+            memory_str += "\n".join(valid_combos)
+            memory_str += "\nPast invalid combinations:\n"
+            memory_str += "\n".join(invalid_combos)
+            
+            self.active_memory = active_memory
+        else:
+            memory_str = ""
+
+        return memory_str
 
 
     def log_step(self, step, inventory, obs, action, memory):

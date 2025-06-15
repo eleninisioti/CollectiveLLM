@@ -45,17 +45,32 @@ def run_single_memory(agent_type, memory_type, num_steps=400,prob_artifact_disap
     
 def run_all(agent_type):
     memory_types = ["random", "relevance", "recency"]
-    prob_artifact_disappear = [0.0, 0.1, 0.2]
-    memory_capacity = [10, 50, 100]
+    memory_types = ["random", "recency"]
+    prob_artifact_disappear_values = [0.0, 0.1, 0.2]
+    memory_capacity_values = [10, 50, 100]
     num_steps = 400
     
     for memory_type in memory_types:
-        for prob_artifact_disappear in prob_artifact_disappear:
-            for memory_capacity in memory_capacity:
+        for prob_artifact_disappear in prob_artifact_disappear_values:
+            for memory_capacity in memory_capacity_values:
+                run_single_memory(agent_type,memory_type, num_steps, prob_artifact_disappear, memory_capacity)
+                
+                
+def run_limited(agent_type):
+    memory_types = ["random", "relevance", "recency"]
+    memory_types = ["random"]
+    prob_artifact_disappear_values = [0.0]
+    memory_capacity_values = [10]
+    num_steps = 400
+    
+    for memory_type in memory_types:
+        for prob_artifact_disappear in prob_artifact_disappear_values:
+            for memory_capacity in memory_capacity_values:
                 run_single_memory(agent_type,memory_type, num_steps, prob_artifact_disappear, memory_capacity)
     
 if __name__ == "__main__":
-    run_all(agent_type="gemini")
+    #run_all(agent_type="random")
+    run_limited(agent_type="gemini")
 
 
 

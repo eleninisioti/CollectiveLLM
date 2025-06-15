@@ -139,18 +139,36 @@ def setup_dir(args):
         args (dict): input flags configuring the project
     """
     top_dir = args["results_dir"]
-    project_dir = [key[:3] + "_" + str(el) for key, el in args.items() if key != "trial" and key != "results_dir"]
-    project_dir = top_dir + "/" + datetime.today().strftime('%Y_%m_%d') + "/" + "_".join(project_dir) 
+    date_dir = os.path.join(top_dir, datetime.today().strftime('%Y_%m_%d'))
+    flags_for_naming = [["agent_type", "num_agents"], ["memory_type", "active_memory_capacity"], ["prob_artifact_disappear"]]
 
-    if not os.path.exists(project_dir + "/data"):
-        os.makedirs(project_dir + "/data", exist_ok=True)
+    # Create first level subdirectory from first flag group
+    first_level = "_".join([f"{key}_{args[key]}" for key in args if key in flags_for_naming[0]])
+    first_dir = os.path.join(date_dir, first_level)
+    
+    # Create second level subdirectory from second flag group
+    second_level = "_".join([f"{key}_{args[key]}" for key in args if key in flags_for_naming[1]])
+    second_dir = os.path.join(first_dir, second_level)
+    
+    # Create third level subdirectory from third flag group
+    third_level = "_".join([f"{key}_{args[key]}" for key in args if key in flags_for_naming[2]])
+    third_dir = os.path.join(second_dir, third_level)
+    
+    # Create final directory name from remaining flags
+    remaining_flags = [f"{key[:3]}_{args[key]}" for key in args 
+                      if key not in flags_for_naming[0] + flags_for_naming[1] + flags_for_naming[2] 
+                      and key != "trial" and key != "results_dir"]
+    final_dir = os.path.join(third_dir, "_".join(remaining_flags))
 
-    with open(project_dir + "/config.yaml", "w") as f:
+    if not os.path.exists(final_dir + "/data"):
+        os.makedirs(final_dir + "/data", exist_ok=True)
+
+    with open(final_dir + "/config.yaml", "w") as f:
         yaml.dump(args, f, default_flow_style=False)
 
-    print("Project created under directory: " + project_dir)
+    print("Project created under directory: " + final_dir)
 
-    return project_dir
+    return final_dir
 
 
 def create_env(env_config):
@@ -222,8 +240,9 @@ def play(args):
                     results.loc[len(results)] = agent_results
                     
                 print("length of results", len(results))
+                time.sleep(4)
 
-                if step % 50 == 0:
+                if step % 5 == 0:
                     # save intermediate results
                     with open(project_dir + "/data/results_" + str(trial) + ".pkl", "wb") as f:
                         results.to_pickle(f)

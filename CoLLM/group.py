@@ -44,10 +44,13 @@ class Group:
                 new_agent = RandomAgent(
                     seed=self.seed,
                     idx=agent_idx,
+                    num_steps=self.num_steps,
                     project_dir=self.project_dir,
                     trial=self.trial,
-                    forbid_repeats=self.forbid_repeats,
-                    env=self.envs[agent_idx])
+                    env=self.envs[agent_idx],
+                    memory_type=self.memory_type,
+                   active_memory_capacity=self.active_memory_capacity,
+)
 
             elif self.agent_type == "empower":
                 new_agent = EmpowerAgent(idx=agent_idx,
@@ -121,16 +124,16 @@ class Group:
                 action, items = agent.move()
                 message, obs = agent.env.step(current_step, items[0], items[1])
 
-                if agent.has_memory:
-                    agent.memory.append((items[0], items[1], obs, current_step))
-                
+                if agent.memory_type != None:
+                    agent.memory[(items[0], items[1], obs)] = current_step
+                                    
                 agent.log_step(step=current_step, obs=obs, action=action, inventory=agent.env.inventory, memory=agent.active_memory)
                 
 
                 # artifact may disappear from an agent's inventory
                 if random.uniform(0, 1) < self.prob_artifact_disappear:
                     # pick a random artifact from the inventory
-                    if len(agent.env.inventory) > 0:
+                    if len(agent.env.inventory) > 2:
                         artifact = random.choice(agent.env.inventory)
                         agent.env.inventory.remove(artifact)
                     

@@ -6,19 +6,18 @@ import numpy as np
 class RandomAgent(Agent):
     """ Chooses two random items from the inventory.
     """
-    def __init__(self, seed=0, forbid_repeats=False,  **kwargs):
+    def __init__(self,  seed, **kwargs):
         """ Class constructor
 
         Args:
             forbit_repeats (bool): if True, random combinations are always novel in the current task
 
         """
-        self.forbid_repeats = forbid_repeats
-
+        self.forbid_repeats = False
         np.random.seed(seed)
         super().__init__(**kwargs)
 
-    def _get_action(self):
+    def _get_action(self, current_memory):
         inventory = self.env.inventory
 
         random_loc = np.random.randint(0, len(inventory))

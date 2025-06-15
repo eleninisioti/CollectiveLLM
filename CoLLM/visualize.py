@@ -133,9 +133,9 @@ def viz_inventory(project_dir, n_trials, task_length):
 def viz_project(project_dir):
     with open(project_dir + "/config.yaml", "r") as f:
         config = yaml.safe_load(f)
-    if config["openended"]:
-        viz_inventory(project_dir, n_trials=config["num_trials"], task_length=config["num_steps"])
-    else:
-        viz_success(project_dir, n_trials=config["num_trials"], task_length=config["num_steps"])
+    #if config["openended"]:
+    #    viz_inventory(project_dir, n_trials=config["num_trials"], task_length=config["num_steps"])
+    #else:
+    #    viz_success(project_dir, n_trials=config["num_trials"], task_length=config["num_steps"])
 
 
