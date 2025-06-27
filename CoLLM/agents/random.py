@@ -19,6 +19,11 @@ class RandomAgent(Agent):
 
     def _get_action(self, current_memory):
         inventory = self.env.inventory
+        print(inventory)
+        
+        social_inventory = self.get_social_inventory()
+        inventory = list(set(inventory) | set(social_inventory))
+        print("after", inventory)
 
         random_loc = np.random.randint(0, len(inventory))
         random_word1 = inventory[random_loc]
@@ -27,4 +32,4 @@ class RandomAgent(Agent):
 
         action = (random_word1, random_word2)
 
-        return action, ""
+        return action, "", inventory

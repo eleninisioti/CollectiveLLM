@@ -8,6 +8,9 @@ class AlchemyEnv:
     
     def __init__(self):
         self.inventory = ["air", "water", "fire", "earth"]
+        # self.inventory = ["air", "water", "fire", "earth"]
+        #self.inventory = ["wood", "fire", "metal", "stone", "water", "plant", "air", "dust"]
+        #self.inventory  = ['wood', 'fire', 'metal', 'stone', 'water', 'plant', 'air', 'dust']
         self.invalid_attempts = []
         self.valid_attempts = []
         self.repeats_valid = 0
@@ -36,11 +39,12 @@ class AlchemyEnv:
             return ""
 
 
-    def step(self, step, item1, item2):
+    def step(self, step, item1, item2, inventory):
         """ Given two items, check that it is
         in the recipe dictionary"""
         
-        inventory = self.inventory
+        #inventory = self.inventory
+        #self.inventory = inventory
 
         recipe_key = tuple(sorted([item1, item2]))
         result = self.load_recipe2entity(recipe_key)

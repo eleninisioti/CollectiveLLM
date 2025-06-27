@@ -21,6 +21,12 @@ def viz_performance(project_dir, save_dir, n_trials):
             with open(results_path, "rb") as f:
                 trial_results = pickle.load(f)
                 all_results.append(trial_results)
+                
+                # Save trial results to text file
+                txt_path = os.path.join(project_dir, "data", f"results_{trial}.txt")
+                with open(txt_path, "w") as txt_file:
+                    txt_file.write(str(trial_results))
+    
     data = pd.concat(all_results, ignore_index=True)
     metrics = [col for col in all_results[0].columns if col != 'steps' and col != 'trial']
 
@@ -207,6 +213,7 @@ def find_project_dirs(top_dir):
 
 if __name__ == "__main__":
     top_dir = "results/2025_06_15"
+    top_dir = "results/report/reproduce_deceptive"
     project_dirs = find_project_dirs(top_dir)
     for project_dir in project_dirs:
         print(f"Processing {project_dir}")

@@ -121,8 +121,8 @@ class Group:
             if not agent.success:
                 # get current environmental state
 
-                action, items = agent.move()
-                message, obs = agent.env.step(current_step, items[0], items[1])
+                action, items, inventory = agent.move()
+                message, obs = agent.env.step(current_step, items[0], items[1], inventory)
 
                 if agent.memory_type != None:
                     agent.memory[(items[0], items[1], obs)] = current_step

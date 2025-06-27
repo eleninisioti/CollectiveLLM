@@ -63,12 +63,17 @@ class Agent:
         self.setup_logs()
 
 
+    def get_social_inventory(self):
+        social_inventory = []
+        for neighbor in self.neighbors:
+            social_inventory.extend(neighbor.env.inventory)
+        return social_inventory
 
     def move(self):
         
         memory = self.fetch_memory(self.env.inventory)
 
-        action, output = self._get_action(memory)
+        action, output, inventory = self._get_action(memory)
         counter = 0
         if self.forbid_repeats:
             already_played = action in self.past_actions
@@ -80,7 +85,7 @@ class Agent:
 
         output = "Combination: '" + action[0] + "' and '" + action[1] + "'"
 
-        return output, action
+        return output, action, inventory
 
 
 

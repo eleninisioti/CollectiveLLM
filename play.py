@@ -103,13 +103,13 @@ def parse_flags():
     parser.add_argument('--visit_duration',
                         type=int,
                         help='Only valid for dynamic connectivity, defines the number of timesteps a visit lasts.',
-                        default=5)
+                        default=50)
 
     parser.add_argument('--visit_prob',
                         type=float,
                         help='Only valid for dynamic connectivity, defines the probability that a random agent will visit'
                              'a random subgroup',
-                        default=0.1)
+                        default=0.2)
 
     # ----------------------------------------------------------------------------
     # ----- configure memory mechanism -----
@@ -140,7 +140,7 @@ def setup_dir(args):
     """
     top_dir = args["results_dir"]
     date_dir = os.path.join(top_dir, datetime.today().strftime('%Y_%m_%d'))
-    flags_for_naming = [["agent_type", "num_agents"], ["memory_type", "active_memory_capacity"], ["prob_artifact_disappear"]]
+    flags_for_naming = [["agent_type", "num_agents", "connectivity"], ["memory_type", "active_memory_capacity"], ["prob_artifact_disappear"]]
 
     # Create first level subdirectory from first flag group
     first_level = "_".join([f"{key}_{args[key]}" for key in args if key in flags_for_naming[0]])
@@ -240,7 +240,7 @@ def play(args):
                     results.loc[len(results)] = agent_results
                     
                 print("length of results", len(results))
-                time.sleep(4)
+                #time.sleep(4)
 
                 if step % 5 == 0:
                     # save intermediate results
