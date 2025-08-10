@@ -16,6 +16,13 @@ class AlchemyEnv:
         self.repeats_valid = 0
         self.repeats_invalid = 0
         
+        recipes_path = 'la2/alchemy2.json'
+        # Read and parse JSON file
+        full_path = os.path.expanduser(recipes_path)
+        with open(full_path, 'r') as f:
+            data = json.load(f)
+        self.recipe_book = data
+        
     
     def load_recipe2entity(self, key):
         """

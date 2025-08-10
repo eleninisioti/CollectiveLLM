@@ -28,6 +28,12 @@ def viz_performance(project_dir, save_dir, n_trials):
                     txt_file.write(str(trial_results))
     
     data = pd.concat(all_results, ignore_index=True)
+    
+    # Save DataFrame to CSV file
+    csv_path = os.path.join(save_dir, "combined_results.csv")
+    data.to_csv(csv_path, index=False)
+
+    
     metrics = [col for col in all_results[0].columns if col != 'steps' and col != 'trial']
 
     for metric in metrics:    
@@ -41,6 +47,19 @@ def viz_performance(project_dir, save_dir, n_trials):
         plt.ylabel(metric)
         plt.tight_layout()
         plt.savefig(os.path.join(save_dir, metric + ".png"))
+        plt.close()
+        
+        plt.figure()
+        sns.lineplot(
+            x='steps',
+            y=metric,
+            data=data,
+            estimator="max",
+            ci='sd'
+        )
+        plt.ylabel(metric)
+        plt.tight_layout()
+        plt.savefig(os.path.join(save_dir, metric + "_max.png"))
         plt.close()
 
 
@@ -212,8 +231,8 @@ def find_project_dirs(top_dir):
 
 
 if __name__ == "__main__":
-    top_dir = "results/2025_06_15"
-    top_dir = "results/report/reproduce_deceptive"
+    top_dir = "results/2025_07_05"
+    #top_dir = "results/report/reproduce_deceptive_empower"
     project_dirs = find_project_dirs(top_dir)
     for project_dir in project_dirs:
         print(f"Processing {project_dir}")

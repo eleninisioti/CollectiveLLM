@@ -103,13 +103,13 @@ def parse_flags():
     parser.add_argument('--visit_duration',
                         type=int,
                         help='Only valid for dynamic connectivity, defines the number of timesteps a visit lasts.',
-                        default=50)
+                        default=5)
 
     parser.add_argument('--visit_prob',
                         type=float,
                         help='Only valid for dynamic connectivity, defines the probability that a random agent will visit'
                              'a random subgroup',
-                        default=0.2)
+                        default=0.01)
 
     # ----------------------------------------------------------------------------
     # ----- configure memory mechanism -----
@@ -222,7 +222,8 @@ def play(args):
                                         "repeats_invalid",
                                         "invalid_attempts",
                                         "invalid_actions",
-                                        "inventory_length"])
+                                        "inventory_length",
+                                        "group_inventory_length"])
 
         start_time = time.time()
         log_info = []

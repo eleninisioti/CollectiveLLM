@@ -3,6 +3,7 @@
 from CoLLM.agents import *
 import random
 import copy
+import wandb
 
 class Group:
 
@@ -53,10 +54,14 @@ class Group:
 )
 
             elif self.agent_type == "empower":
-                new_agent = EmpowerAgent(idx=agent_idx,
-                                         project_dir=self.project_dir,
-                                         trial=self.trial,
-                    env=self.envs[agent_idx])
+                new_agent = EmpowerAgent(
+                    idx=agent_idx,
+                    num_steps=self.num_steps,
+                    project_dir=self.project_dir,
+                    trial=self.trial,
+                    env=self.envs[agent_idx],
+                    memory_type=self.memory_type,
+                   active_memory_capacity=self.active_memory_capacity,)
 
 
             elif self.agent_type == "openai":
@@ -145,7 +150,7 @@ class Group:
                 log_info["valid_attempts"]["agent_" + str(agent.idx)] = agent.env.valid_attempts
                 log_info["invalid_attempts"]["agent_" + str(agent.idx)] = agent.env.invalid_attempts    
                 
-
+                print("agent ", agent.idx, "inventory", len(agent.env.inventory))
                 group_results.append([self.trial,
                                       self.task,
                                       agent.idx,
@@ -155,6 +160,17 @@ class Group:
                                       len(agent.env.invalid_attempts),
                                       agent.invalid_actions,
                                       len(agent.env.inventory)])
+                
+        # Flatten the list of lists and count unique elements
+        group_inventory = [item for agent in self.agents for item in agent.env.inventory]
+        unique_count = len(set(group_inventory))
+        
+        wandb.log({"mean_inventory_size": unique_count})
+        
+        # Add group_inventory to the end of each list in group_results
+        for i, result in enumerate(group_results):
+            group_results[i] = result + [unique_count]
+        
         return group_results, log_info
 
     def wrap_up(self):
@@ -189,6 +205,8 @@ class Group:
         for agent in self.agents:
             if agent.visiting:
                 agent.visiting_for += 1
+                
+        visit_on = sum([1 for agent in self.agents if agent.visiting])
 
         # is there someone returning from a visit?
         for agent in self.agents:
@@ -199,23 +217,31 @@ class Group:
         # is there a new visit
         for agent in self.agents:
             small_number = random.uniform(0, 1)
-            if (small_number < self.visit_prob) and (not sum([x.visiting for x in self.agents])):
+            if (small_number < self.visit_prob) and not visit_on:
                 with open(self.visit_log, "a") as f:
                     f.write(" visiting agent is " + str(agent.idx))
-                agent.visiting = True
-                agent.visiting_for = 0
-                agent.prev_group = agent.neighbors[:]
-                for neighb in agent.prev_group:
-                    neighb.neighbors.remove(agent)
-                    agent.neighbors.remove(neighb)
                 # pick agent to visit
-                to_visit = random.choice(
-                    [pot for pot in self.agents if (pot != agent) and (pot not in agent.prev_group)])
-                with open(self.visit_log, "a") as f:
-                    f.write(" he is visiting " + str(to_visit.idx))
+                potential_visitors = [pot for pot in self.agents if (pot != agent) and (pot not in agent.prev_group)]
+                if len(potential_visitors) > 0:
+                    agent.visiting = True
+                    agent.visiting_for = 0
+                    agent.prev_group = agent.neighbors[:]
+                    for neighb in agent.prev_group:
+                        neighb.neighbors.remove(agent)
+                        agent.neighbors.remove(neighb)
+                    
+                    to_visit = random.choice(potential_visitors)
+                        
+                    with open(self.visit_log, "a") as f:
+                        f.write(" he is visiting " + str(to_visit.idx))
 
-                agent.neighbors.append(to_visit)
-                for neighb in to_visit.neighbors:
-                    neighb.neighbors.append(agent)
-                    agent.neighbors.append(neighb)
-                to_visit.neighbors.append(agent)
+                    agent.neighbors.append(to_visit)
+                    for neighb in to_visit.neighbors:
+                        neighb.neighbors.append(agent)
+                        agent.neighbors.append(neighb)
+                    to_visit.neighbors.append(agent)
+
+                else:
+                    continue
+                    
+

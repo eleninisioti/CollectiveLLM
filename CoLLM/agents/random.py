@@ -18,11 +18,11 @@ class RandomAgent(Agent):
         super().__init__(**kwargs)
 
     def _get_action(self, current_memory):
-        inventory = self.env.inventory
-        print(inventory)
+        indiv_inventory = self.env.inventory
+        print(indiv_inventory)
         
         social_inventory = self.get_social_inventory()
-        inventory = list(set(inventory) | set(social_inventory))
+        inventory = list(set(indiv_inventory) | set(social_inventory))
         print("after", inventory)
 
         random_loc = np.random.randint(0, len(inventory))
@@ -31,5 +31,22 @@ class RandomAgent(Agent):
         random_word2 = inventory[random_loc]
 
         action = (random_word1, random_word2)
+        
+        
+        
+        counter = 0
+        while action in self.env.valid_attempts or action in self.env.invalid_attempts:
+            random_loc = np.random.randint(0, len(inventory))
+            random_word1 = inventory[random_loc]
+            random_loc = np.random.randint(0, len(inventory))
+            random_word2 = inventory[random_loc]
+            action = (random_word1, random_word2)
+            
+            if counter > 150:
+                break
+            
+            counter += 1
+        
 
-        return action, "", inventory
+
+        return action, "", indiv_inventory

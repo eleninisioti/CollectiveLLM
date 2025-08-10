@@ -81,7 +81,7 @@ def find_project_dirs(top_dir):
     return project_dirs
 
 if __name__ == "__main__":
-    top_dir = "results/report/reproduce_deceptive"
+    top_dir = "results/report/deceptive_longer"
     save_dir = os.path.join(top_dir, "combined_visuals")
     
     if not os.path.exists(save_dir):
