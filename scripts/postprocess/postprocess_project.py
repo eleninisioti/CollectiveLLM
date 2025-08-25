@@ -203,6 +203,20 @@ def viz_memory(project_dir, save_dir, n_trials, num_steps):
         plt.close()
 
         
+def viz_memory_collective(project_dir, save_dir, n_trials, num_steps):
+    metrics = []
+    
+    for trial in range(n_trials):
+        results_path = os.path.join(project_dir, "data", f"log_info_{trial}.pkl")
+        if os.path.exists(results_path):
+            with open(results_path, "rb") as f:
+                trial_data = pickle.load(f)
+                
+                # is the agent choosing items that are in its active memory?
+                for step in range(1,len(trial_data)):              
+                    action = trial_data[step]["actions"]["agent_0"]           
+                    active_memories = trial_data[step]["active_memory"]["agent_0"]
+                    
 def postprocess_project(project_dir):
     save_dir = os.path.join(project_dir, "visuals")
 
@@ -219,6 +233,7 @@ def postprocess_project(project_dir):
     
     viz_cultural_loss(project_dir, save_dir, n_trials, num_steps)
     viz_memory(project_dir, save_dir, n_trials, num_steps)
+    #viz_memory_collective(project_dir, save_dir, n_trials, num_steps)
 
 
 def find_project_dirs(top_dir):
@@ -231,7 +246,7 @@ def find_project_dirs(top_dir):
 
 
 if __name__ == "__main__":
-    top_dir = "results/2025_07_05"
+    top_dir = "results/report_multi"
     #top_dir = "results/report/reproduce_deceptive_empower"
     project_dirs = find_project_dirs(top_dir)
     for project_dir in project_dirs:

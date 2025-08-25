@@ -241,7 +241,6 @@ def play(args):
                     results.loc[len(results)] = agent_results
                     
                 print("length of results", len(results))
-                #time.sleep(4)
 
                 if step % 5 == 0:
                     # save intermediate results

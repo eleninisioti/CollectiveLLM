@@ -40,8 +40,9 @@ Here is a simple example:
 Inventory: 'science', 'ocean', 'dinosaur'
 Task valid combinations (do not repeat combinations here):
 Task invalid combinations (do not repeat combinations here):
-Other players valid combinations:
-Other players invalid combinations (do not repeat combinations here):
+Social memories:
+Task valid combinations:
+Task invalid combinations (do not repeat combinations here):
 
 <bot> RESPONSE:
 Reasoning: a scientist that studies dinosaurs is a paleontologist, which is a new item
@@ -52,8 +53,9 @@ Combination: 'science' and 'dinosaur'
 Inventory: 'wall', 'earth', 'mud', 'angel'
 Task valid combinations (do not repeat combinations here):
 Task invalid combinations (do not repeat combinations here):
-Other players valid combinations:
-Other players invalid combinations (do not repeat combinations here):
+Social memories:
+Task valid combinations:
+Task invalid combinations (do not repeat combinations here):
 
 <bot> RESPONSE:
 Reasoning: I can combine an element with itself so I will create a house by combining two walls
@@ -65,6 +67,8 @@ Combination: 'wall' and 'wall'
 Inventory: 'human', 'metal', 'fire', 'life', 'robot'
 Task valid combinations (do not repeat combinations here): 'metal' and 'life -> 'robot'
 Task invalid combinations (do not repeat combinations here):
+Social memories:
+
 Other players valid combinations:
 Other players invalid combinations (do not repeat combinations here):
 
@@ -78,8 +82,9 @@ Combination: 'robot' and 'human'
 Inventory: 'human', 'metal', 'fire', 'life'
 Task valid combinations (do not repeat combinations here):
 Task invalid combinations (do not repeat combinations here): 'fire' and 'life'
-Other players valid combinations:
-Other players invalid combinations (do not repeat combinations here):
+Social memories:
+Task valid combinations:
+Task invalid combinations (do not repeat combinations here):
 
 <bot> RESPONSE:
 Reasoning: In a previous round of this task I tried to combine 'fire' and 'life' and didn't get a new item. So I should not try this combo again.  I can combine 'metal' and 'life' to make a 'robot' because a robot is made of metal and behaves like a living organism.
@@ -92,8 +97,9 @@ Combination: 'metal' and 'life'
 Inventory: 'human', 'metal', 'fire', 'life', 'robot'
 Task valid combinations (do not repeat combinations here): 'metal' and 'life -> 'robot'
 Task invalid combinations (do not repeat combinations here):
-Other players valid combinations:
-Other players invalid combinations (do not repeat combinations here):
+Social memories:
+Task valid combinations:
+Task invalid combinations (do not repeat combinations here):
 You have already combined 'metal' and 'life', so you cannot repeat it. Try another one.
 
 <bot> RESPONSE:
@@ -106,8 +112,9 @@ Combination: 'robot' and 'human'
 Inventory: 'human', 'metal', 'fire', 'life'
 Task valid combinations:
 Task invalid combinations (do not repeat combinations here): 'fire' and 'life'
-Other players valid combinations: 'metal' and 'life' -> 'robot'
-Other players invalid combinations (do not repeat combinations here): 'human' and "fire"
+Social memories:
+Task valid combinations: 'metal' and 'life' -> 'robot'
+Task invalid combinations (do not repeat combinations here): 'human' and "fire"
 
 <bot> RESPONSE:
 Reasoning: The other player combined 'metal' and 'life' to make 'robot'. 'Robot' looks like a useful item to have to make 'cyborg' so I will create it now and use it in the next round. I also see that the other player tried the invalid combination "human" and "fire", so I will never try it myself

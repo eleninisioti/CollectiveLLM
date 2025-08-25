@@ -4,6 +4,7 @@ from CoLLM.agents import *
 import random
 import copy
 import wandb
+import time
 
 class Group:
 
@@ -65,13 +66,16 @@ class Group:
 
 
             elif self.agent_type == "openai":
-                new_agent = OpenAIAgent(idx=agent_idx,
-                                         project_dir=self.project_dir,
-                                         forbid_repeats=False,
-                                         trial=self.trial,
-                                         openended=self.openended,
-                                         num_agents=self.num_agents,
-                                         env=self.envs[agent_idx])
+                new_agent = OpenAIAgent(seed=self.seed,
+                                        idx=agent_idx,
+                                        project_dir=self.project_dir,
+                                        trial=self.trial,
+                                        multiagent=(self.num_agents-1),
+                                        env=self.envs[agent_idx],
+                                        num_steps=self.num_steps,
+                                        memory_type=self.memory_type,
+                                        active_memory_capacity=self.active_memory_capacity,
+                                        )
 
             elif self.agent_type == "ollama":
                 new_agent = OllamaAgent(seed=self.seed,
@@ -149,6 +153,9 @@ class Group:
                 log_info["rank"]["agent_" + str(agent.idx)] = agent.rank
                 log_info["valid_attempts"]["agent_" + str(agent.idx)] = agent.env.valid_attempts
                 log_info["invalid_attempts"]["agent_" + str(agent.idx)] = agent.env.invalid_attempts    
+                
+                #time.sleep(1)
+
                 
                 print("agent ", agent.idx, "inventory", len(agent.env.inventory))
                 group_results.append([self.trial,
